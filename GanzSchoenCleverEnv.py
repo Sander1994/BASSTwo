@@ -1,8 +1,6 @@
 import gymnasium as gym
 from gymnasium import spaces
-import random
 import numpy as np
-from typing import Optional
 
 
 class GanzSchonCleverEnv(gym.Env):
@@ -19,18 +17,20 @@ class GanzSchonCleverEnv(gym.Env):
         self.reward_flags = {'row': [False, False, False, False], 'col': [False, False, False, False]}
         self.extra_pick = False
         self.score = 0
+        self.state = {'field': self.yellow_field.copy(), 'dice': self.dice}
 
         self.action_space = spaces.MultiDiscrete([4, 4, 2])  # 4 rows, 4 columns, and binary flag for extra pick
         self.observation_space = spaces.Dict({
             'field': spaces.Box(low=0, high=6, shape=(4, 4), dtype=np.int32),
-            'dice': spaces.MultiDiscrete([7, 7])
+            'dice': spaces.Box(low=1, high=6, shape=(2,), dtype=np.int32)
         })
 
     def step(self, action):
         row, col, extra_pick_action = action
 
         reward = 0
-        done = False
+        terminated = False
+        truncated = False
         info = {}
 
         # check if the action is valid
@@ -38,8 +38,8 @@ class GanzSchonCleverEnv(gym.Env):
             self.yellow_field[row][col] = 0
             reward = self.check_rewards()
         else:
-            done = True  # end episode if invalid field action is taken
-            return {'field': self.yellow_field.copy(), 'dice': self.dice}, reward, done, info
+            terminated = True  # end episode if invalid field action is taken
+            return {'field': self.yellow_field.copy(), 'dice': self.dice}, reward, terminated, truncated, info
 
         # check if extra pick action is valid
         if extra_pick_action == 1:
@@ -55,11 +55,11 @@ class GanzSchonCleverEnv(gym.Env):
                     if not self.extra_pick:
                         break
                 if self.extra_pick:
-                    done = True  # end episode if invalid extra pick action is taken
-                    return {'field': self.yellow_field.copy(), 'dice': self.dice}, reward, done, info
+                    terminated = True  # end episode if invalid extra pick action is taken
+                    return {'field': self.yellow_field.copy(), 'dice': self.dice}, reward, terminated, truncated, info
             else:
-                done = True  # end episode if invalid extra pick action is taken
-                return {'field': self.yellow_field.copy(), 'dice': self.dice}, reward, done, info
+                terminated = True  # end episode if invalid extra pick action is taken
+                return {'field': self.yellow_field.copy(), 'dice': self.dice}, reward, terminated, truncated, info
 
         # roll the dice for the next state
         self.dice = self.roll_dice()
@@ -68,21 +68,23 @@ class GanzSchonCleverEnv(gym.Env):
         self.rounds -= 1
         self.score += reward
         if self.rounds == 0:
-            done = True
+            terminated = True
 
-        return {'field': self.yellow_field.copy(), 'dice': self.dice}, reward, done, info
+        self.state = {self.yellow_field.copy(), [2, 2]}
+        return np.array(self.state, dtype=np.float32), reward, terminated, truncated, info
 
-    def reset(self,
-        *,
-        seed: Optional[int] = None,
-        options: Optional[dict] = None,):
+    def reset(self, seed=None, options=None):
+        super().reset(seed=seed)
+
         self.yellow_field = np.array([[3, 6, 5, 0], [2, 1, 0, 5], [1, 0, 2, 4], [0, 3, 4, 6]])
         self.reward_flags = {'row': [False, False, False, False], 'col': [False, False, False, False]}
         self.extra_pick = False
         self.score = 0
         self.rounds = self.initial_rounds
         self.dice = self.roll_dice()
-        return {'field': self.yellow_field.copy(), 'dice': self.dice}
+        self.state = {self.yellow_field.copy(), [2, 2]}
+
+        return np.array(self.state, dtype=np.float32), {}
 
     def render(self, mode='human'):
         print(f'Yellow Field: {self.yellow_field}')
@@ -90,7 +92,7 @@ class GanzSchonCleverEnv(gym.Env):
 
     @staticmethod
     def roll_dice():
-        return random.randint(1, 6), random.randint(1, 6)
+        return np.array([np.random.randint(1, 7), np.random.randint(1, 7)])
 
     def check_rewards(self):
         reward = 0
