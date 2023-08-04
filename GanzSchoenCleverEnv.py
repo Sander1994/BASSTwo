@@ -40,7 +40,7 @@ class GanzSchonCleverEnv(gym.Env):
             return self._get_obs(), reward, terminated, truncated, info
 
         # check if extra pick action is valid
-        if extra_pick_action == 1:
+        if extra_pick_action == 2:
             if self.extra_pick:
                 # find an unentered field that matches a die value
                 for i in range(4):

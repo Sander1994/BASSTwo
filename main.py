@@ -20,7 +20,7 @@ def train_and_test_model():
     scores_history = [[] for _ in range(n_envs)]
 
     model = PPO("MlpPolicy", env, verbose=1)
-    model.learn(total_timesteps=250000)
+    model.learn(total_timesteps=2500000)
     model.save("ppo_ganzschoenclever")
 
     del model
@@ -29,7 +29,7 @@ def train_and_test_model():
 
     obs = env.reset()
     j = 0
-    while j < 10000:
+    while j < 20000:
         action, _states = model.predict(obs)
         obs, rewards, dones, info = env.step(action)
         j += 1
