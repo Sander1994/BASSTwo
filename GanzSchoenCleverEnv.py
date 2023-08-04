@@ -19,7 +19,7 @@ class GanzSchonCleverEnv(gym.Env):
         self.score = 0
 
         self.action_space = spaces.MultiDiscrete([4, 4, 2])  # 4 rows, 4 columns, and binary flag for extra pick
-        self.observation_space = spaces.Box(low=0, high=6, shape=(4 * 4 + 2,), dtype=np.int32)
+        self.observation_space = spaces.Box(low=0, high=6, shape=(16,), dtype=np.int32)
 
     def step(self, action):
         row, col, extra_pick_action = action
@@ -35,7 +35,7 @@ class GanzSchonCleverEnv(gym.Env):
             reward = self.check_rewards()
         else:
             terminated = True  # end episode if invalid field action is taken
-            return {'field': self.yellow_field.copy(), 'dice': self.dice}, reward, terminated, truncated, info
+            return self._get_obs(), reward, terminated, truncated, info
 
         # check if extra pick action is valid
         if extra_pick_action == 1:
@@ -52,10 +52,10 @@ class GanzSchonCleverEnv(gym.Env):
                         break
                 if self.extra_pick:
                     terminated = True  # end episode if invalid extra pick action is taken
-                    return {'field': self.yellow_field.copy(), 'dice': self.dice}, reward, terminated, truncated, info
+                    return self._get_obs(), reward, terminated, truncated, info
             else:
                 terminated = True  # end episode if invalid extra pick action is taken
-                return {'field': self.yellow_field.copy(), 'dice': self.dice}, reward, terminated, truncated, info
+                return self._get_obs(), reward, terminated, truncated, info
 
         # roll the dice for the next state
         self.dice = self.roll_dice()
@@ -68,17 +68,16 @@ class GanzSchonCleverEnv(gym.Env):
 
         return self._get_obs(), reward, terminated, truncated, info
 
-    def reset(self, seed=None, options=None):
-        super().reset(seed=seed)
-
+    def reset(self, seed=None, **kwargs):
         self.yellow_field = [[3, 6, 5, 0], [2, 1, 0, 5], [1, 0, 2, 4], [0, 3, 4, 6]]
         self.reward_flags = {'row': [False, False, False, False], 'col': [False, False, False, False]}
         self.extra_pick = False
         self.score = 0
         self.rounds = self.initial_rounds
         self.dice = self.roll_dice()
+        info = {}
 
-        return self._get_obs(), {}
+        return self._get_obs(), info
 
     def render(self, mode='human'):
         if mode == 'human':
@@ -117,5 +116,4 @@ class GanzSchonCleverEnv(gym.Env):
         obs = np.concatenate((yellow_field_array, dice_array), axis=None)
 
         print(f'Observation Shape: {obs.shape}')
-        return obs
-
+        return yellow_field_array
