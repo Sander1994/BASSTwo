@@ -28,19 +28,19 @@ class GanzSchonCleverEnv(gym.Env):
         terminated = False
         truncated = False
         info = {}
-        print(self.score)
 
         # check if the action is valid
         if self.yellow_field[row][col] in self.dice and self.yellow_field[row][col] != 0:
             self.yellow_field[row][col] = 0
-            reward += 1
             reward = self.check_rewards()
+            if reward == 0:
+                reward += 1
         else:
             terminated = True  # end episode if invalid field action is taken
             return self._get_obs(), reward, terminated, truncated, info
 
         # check if extra pick action is valid
-        if extra_pick_action == 2:
+        if extra_pick_action == 1:
             if self.extra_pick:
                 # find an unentered field that matches a die value
                 for i in range(4):
@@ -71,6 +71,7 @@ class GanzSchonCleverEnv(gym.Env):
         return self._get_obs(), reward, terminated, truncated, info
 
     def reset(self, seed=None, **kwargs):
+        self.score_history.append(self.score)
         self.yellow_field = [[3, 6, 5, 0], [2, 1, 0, 5], [1, 0, 2, 4], [0, 3, 4, 6]]
         self.reward_flags = {'row': [False, False, False, False], 'col': [False, False, False, False]}
         self.extra_pick = False
