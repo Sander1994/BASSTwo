@@ -17,28 +17,30 @@ class GanzSchonCleverEnv(gym.Env):
         self.reward_flags = {'row': [False, False, False, False], 'col': [False, False, False, False]}
         self.extra_pick = False
         self.score = 0
+        self.score_history = []
 
         self.action_space = spaces.MultiDiscrete([4, 4, 2])  # 4 rows, 4 columns, and binary flag for extra pick
-        self.observation_space = spaces.Box(low=0, high=6, shape=(16,), dtype=np.int32)
+        self.observation_space = spaces.Box(low=0, high=6, shape=(18,), dtype=np.int32)
 
     def step(self, action):
         row, col, extra_pick_action = action
-
         reward = 0
         terminated = False
         truncated = False
         info = {}
+        print(self.score)
 
         # check if the action is valid
         if self.yellow_field[row][col] in self.dice and self.yellow_field[row][col] != 0:
             self.yellow_field[row][col] = 0
+            reward += 1
             reward = self.check_rewards()
         else:
             terminated = True  # end episode if invalid field action is taken
             return self._get_obs(), reward, terminated, truncated, info
 
         # check if extra pick action is valid
-        if extra_pick_action == 1:
+        if extra_pick_action == 2:
             if self.extra_pick:
                 # find an unentered field that matches a die value
                 for i in range(4):
@@ -110,10 +112,10 @@ class GanzSchonCleverEnv(gym.Env):
         yellow_field_array = np.array(self.yellow_field, dtype=np.int32).flatten()
         dice_array = np.array(list(self.dice), dtype=np.int32)
 
-        print(f'Yellow Field Array Shape: {yellow_field_array.shape}')
-        print(f'Dice Array Shape: {dice_array.shape}')
+    #    print(f'Yellow Field Array Shape: {yellow_field_array.shape}')
+    #    print(f'Dice Array Shape: {dice_array.shape}')
 
         obs = np.concatenate((yellow_field_array, dice_array), axis=None)
 
-        print(f'Observation Shape: {obs.shape}')
-        return yellow_field_array
+    #    print(f'Observation Shape: {obs.shape}')
+        return obs

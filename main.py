@@ -1,27 +1,35 @@
 from stable_baselines3 import PPO
+from stable_baselines3.common.vec_env import SubprocVecEnv
 from GanzSchoenCleverEnv import GanzSchonCleverEnv
+import matplotlib.pyplot as plt
 
 
 def train_and_test_model():
-    env = GanzSchonCleverEnv()  # Here we directly create one instance of the environment
+    n_envs = 8  # Number of environments to create
 
-    model = PPO("MlpPolicy", env, verbose=1)  # We pass the single environment instance to the model
-    model.learn(total_timesteps=250)
-    model.save("ppo_ganzschoenclever")
+    # Function to create a single environment, this will be called n_envs times
+    def make_env():
+        def _init():
+            return GanzSchonCleverEnv()
+        return _init
 
-    del model
+    # Create the vectorized environment
+    env = SubprocVecEnv([make_env() for _ in range(n_envs)])
+
+    #model = PPO("MlpPolicy", env, verbose=1)
+    #model.learn(total_timesteps=2500000)
+    #model.save("ppo_ganzschoenclever")
+
+    #del model
 
     model = PPO.load("ppo_ganzschoenclever")
 
-    obs = env.reset()  # Use the single environment instance to reset and get the initial observation
+    obs = env.reset()
     while True:
-        try:
-            action, _states = model.predict(obs)
-        except ValueError as e:
-            print("Observation that caused error:", obs)
-            raise e
-        obs, rewards, terminated, truncated, info = env.step(action)
-        env.render("human")  # Use the single environment instance to render
+        action, _states = model.predict(obs)
+        obs, rewards, dones, info = env.step(action)
+        if dones.any():
+            obs = env.reset()  # Note: with multiple environments, you reset only the ones that are done
 
 
 def main():
