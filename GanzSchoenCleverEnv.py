@@ -13,7 +13,7 @@ class GanzSchonCleverEnv(gym.Env):
         self.rounds = rounds
         self.yellow_field = [[3, 6, 5, 0], [2, 1, 0, 5], [1, 0, 2, 4], [0, 3, 4, 6]]
         self.dice = self.roll_dice()
-        self.rewards = {'row': [10, 10, 10, 25], 'col': [10, 14, 16, 20]}
+        self.rewards = {'row': [100, 200, 300, 400], 'col': [1000, 1400, 1600, 2000]}
         self.reward_flags = {'row': [False, False, False, False], 'col': [False, False, False, False]}
         self.extra_pick = False
         self.score = 0
@@ -112,11 +112,5 @@ class GanzSchonCleverEnv(gym.Env):
     def _get_obs(self):
         yellow_field_array = np.array(self.yellow_field, dtype=np.int32).flatten()
         dice_array = np.array(list(self.dice), dtype=np.int32)
-
-    #    print(f'Yellow Field Array Shape: {yellow_field_array.shape}')
-    #    print(f'Dice Array Shape: {dice_array.shape}')
-
         obs = np.concatenate((yellow_field_array, dice_array), axis=None)
-
-    #    print(f'Observation Shape: {obs.shape}')
         return obs

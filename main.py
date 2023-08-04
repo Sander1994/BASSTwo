@@ -19,13 +19,13 @@ def train_and_test_model():
     scores = np.zeros(n_envs)
     scores_history = [[] for _ in range(n_envs)]
 
-    model = PPO("MlpPolicy", env, verbose=1)
-    model.learn(total_timesteps=2500000)
-    model.save("ppo_ganzschoenclever")
+    #model = PPO("MlpPolicy", env, verbose=1)
+    #model.learn(total_timesteps=2500000)
+    #model.save("ppo_ganzschoenclever")
 
-    del model
+    #del model
 
-    model = PPO.load("ppo_ganzschoenclever")
+    model = PPO.load("ppo_ganzschoencleverv1.5")
 
     obs = env.reset()
     j = 0
