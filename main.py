@@ -6,7 +6,7 @@ import numpy as np
 
 
 def train_and_test_model():
-    n_envs = 8
+    n_envs = 4
 
     def make_env():
         def _init():
@@ -25,11 +25,11 @@ def train_and_test_model():
 
     #del model
 
-    model = PPO.load("ppo_ganzschoencleverv1.5")
+    model = PPO.load("ppo_ganzschoenclever")
 
     obs = env.reset()
     j = 0
-    while j < 20000:
+    while j < 50000:
         action, _states = model.predict(obs)
         obs, rewards, dones, info = env.step(action)
         j += 1
