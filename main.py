@@ -25,10 +25,12 @@ def train_and_test_model():
     del model
 
     model = PPO.load("ppo_ganzschoenclever")
+    model.learning_rate = 0.01
+    model.gamma = 0.99
 
     obs = env.reset()
     j = 0
-    while j < 1000:
+    while j < 400:
         action, _states = model.predict(obs)
         obs, rewards, dones, info = env.step(action)
         j += 1
