@@ -20,7 +20,7 @@ class GanzSchonCleverEnv(gym.Env):
         self.score_history = []
         self.last_dice = None
 
-        self.action_space = spaces.Discrete(17)
+        self.action_space = spaces.Discrete(32)
         self.observation_space = spaces.Box(low=0, high=6, shape=(19,), dtype=np.int32)
 
     def step(self, action):
@@ -39,42 +39,35 @@ class GanzSchonCleverEnv(gym.Env):
                     reward += 1
             else:
                 terminated = True  # end episode if invalid field action is taken
-                if reward == 0:
-                    reward -= 1
+                reward -= 10
+                return self._get_obs(), reward, terminated, truncated, info
+
+        elif action < 32:
+            action -= 16
+            row = action // 4
+            col = action % 4
+            if self.extra_pick:
+                if self.yellow_field[row][col] in self.dice and self.yellow_field[row][col] != 0:
+                    self.yellow_field[row][col] = 0
+                    reward = self.check_rewards()
+                    if reward == 0:
+                        reward += 1
+                else:
+                    terminated = True
+                    reward -= 10
+                    return self._get_obs(), reward, terminated, truncated, info
+            else:
+                reward -= 10
+                terminated = True
                 return self._get_obs(), reward, terminated, truncated, info
 
         else:
-            if self.extra_pick:
-                if self.last_dice:
-                    found_match = False
-                    for i in range(4):
-                        for j in range(4):
-                            if self.yellow_field[i][j] in self.last_dice and self.yellow_field[i][j] != 0:
-                                self.yellow_field[i][j] = 0
-                                reward += self.check_rewards()
-                                self.extra_pick = False
-                                found_match = True
-                                break
-                        if found_match:
-                            break
-                    if not found_match:
-                        if reward == 0:
-                            reward -= 1
-                        terminated = True  # end episode if invalid extra pick action is taken
-                        return self._get_obs(), reward, terminated, truncated, info
-                else:
-                    if reward == 0:
-                        reward -= 1
-                    terminated = True  # end episode if invalid extra pick action is taken
-                    return self._get_obs(), reward, terminated, truncated, info
+            reward -= 1000
+            terminated = True
+            return self._get_obs(), reward, terminated, truncated, info
 
-        # Save the current dice values for the extra pick in the next turn
         self.last_dice = self.dice
-
-        # Reroll dice for the next turn after processing both actions
         self.dice = self.roll_dice()
-
-        # Check if all rounds are played
         self.rounds -= 1
         self.score += reward
         if self.rounds == 0:

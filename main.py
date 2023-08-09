@@ -15,26 +15,24 @@ def train_and_test_model():
 
     env = SubprocVecEnv([make_env() for _ in range(n_envs)])
 
-    # Initialize the data structure for scores
     scores = np.zeros(n_envs)
     scores_history = [[] for _ in range(n_envs)]
 
     #model = PPO("MlpPolicy", env, verbose=1)
-    #model.learn(total_timesteps=2500000)
+    #model.learn(total_timesteps=25000000)
     #model.save("ppo_ganzschoenclever")
 
     #del model
 
-    model = PPO.load("ppo_ganzschoenclever")
+    model = PPO.load("ppo_ganzschoencleverv1.1.0.2.zip")
 
     obs = env.reset()
     j = 0
-    while j < 50000:
+    while j < 200:
         action, _states = model.predict(obs)
         obs, rewards, dones, info = env.step(action)
         j += 1
 
-        # Update the scores
         scores += rewards
         for i, done in enumerate(dones):
             if done:
@@ -42,7 +40,6 @@ def train_and_test_model():
                 scores[i] = 0  # Reset the score
                 obs[i] = env.reset()[i]  # Reset the done environment
 
-    # Plotting the scores
     for i, score_history in enumerate(scores_history):
         plt.figure()
         plt.plot(score_history)
@@ -53,12 +50,8 @@ def train_and_test_model():
 
 
 def main():
-    # Other parts of your code
 
-    # At some point you decide to start the training and testing of the model
     train_and_test_model()
-
-    # More of your code
 
 
 if __name__ == "__main__":
