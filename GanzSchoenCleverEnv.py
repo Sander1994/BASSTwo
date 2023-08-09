@@ -6,7 +6,7 @@ import random
 
 class GanzSchonCleverEnv(gym.Env):
     metadata = {'render.modes': ['human']}
-#
+
     def __init__(self, rounds=10):
         super(GanzSchonCleverEnv, self).__init__()
         self.initial_rounds = rounds

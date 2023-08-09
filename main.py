@@ -25,7 +25,7 @@ def train_and_test_model():
     del model
 
     model = PPO.load("ppo_ganzschoenclever")
-    model.learning_rate = 0.005
+    model.learning_rate = 0.001
     model.gamma = 0.95
 
     obs = env.reset()
