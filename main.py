@@ -18,17 +18,17 @@ def train_and_test_model():
     scores = np.zeros(n_envs)
     scores_history = [[] for _ in range(n_envs)]
 
-    #model = PPO("MlpPolicy", env, verbose=1)
-    #model.learn(total_timesteps=25000000)
-    #model.save("ppo_ganzschoenclever")
+    model = PPO("MlpPolicy", env, verbose=1)
+    model.learn(total_timesteps=2500000)
+    model.save("ppo_ganzschoenclever")
 
-    #del model
+    del model
 
-    model = PPO.load("ppo_ganzschoencleverv1.1.0.2.zip")
+    model = PPO.load("ppo_ganzschoenclever")
 
     obs = env.reset()
     j = 0
-    while j < 200:
+    while j < 1000:
         action, _states = model.predict(obs)
         obs, rewards, dones, info = env.step(action)
         j += 1

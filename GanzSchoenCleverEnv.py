@@ -47,11 +47,13 @@ class GanzSchonCleverEnv(gym.Env):
             row = action // 4
             col = action % 4
             if self.extra_pick:
-                if self.yellow_field[row][col] in self.dice and self.yellow_field[row][col] != 0:
+                if self.yellow_field[row][col] in self.last_dice and self.yellow_field[row][col] != 0:
                     self.yellow_field[row][col] = 0
                     reward = self.check_rewards()
                     if reward == 0:
                         reward += 1
+                    self.score += reward
+                    return self._get_obs(), reward, terminated, truncated, info
                 else:
                     terminated = True
                     reward -= 10
