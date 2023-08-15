@@ -17,25 +17,24 @@ def train_and_test_model():
 
     scores = np.zeros(n_envs)
     scores_history = [[] for _ in range(n_envs)]
+    policy_kwargs = dict(net_arch=[128, 128, 128, 128])
 
-    model = PPO("MlpPolicy", env, learning_rate=0.001, gamma=0.95, verbose=1)
-    model.learn(total_timesteps=250000)
+    model = PPO("MlpPolicy", env, learning_rate=0.0003, gamma=0.99, policy_kwargs=policy_kwargs, verbose=1)
+    model.learn(total_timesteps=2500000)
     model.save("ppo_ganzschoenclever")
-
-    del model
 
     model = PPO.load("ppo_ganzschoenclever")
 
     obs = env.reset()
     j = 0
-    while j < 10000:
+    while j < 200:
         action, _states = model.predict(obs)
         obs, rewards, dones, info = env.step(action)
         j += 1
 
         scores += rewards
         for i in range(4):
-            print(scores[i])
+            print(str(i) + ":" + str(scores[i]))
         for i, done in enumerate(dones):
             if done:
                 scores_history[i].append(scores[i])  # Store the score for this episode

@@ -19,11 +19,10 @@ class GanzSchonCleverEnv(gym.Env):
         self.score = 0
         self.score_history = []
         self.last_dice = None
-        self.stepcount = 20
         self.extra_pick_unlocked = False
 
         self.action_space = spaces.Discrete(16)
-        self.observation_space = spaces.Box(low=0, high=6, shape=(21,), dtype=np.int32)
+        self.observation_space = spaces.Box(low=0, high=6, shape=(20,), dtype=np.int32)
 
     def step(self, action):
         reward = 0
@@ -31,16 +30,17 @@ class GanzSchonCleverEnv(gym.Env):
         truncated = False
         info = {}
 
-        self.stepcount -= 1
-        if self.stepcount <= 0:
-            terminated = True
-            reward -= 100
+        # self.stepcount -= 1
+        # if self.stepcount <= 0:
+        #     terminated = True
+        #     reward -= 100
+        #     return self._get_obs(), reward, terminated, truncated, info
 
-        if action == 3 | 6 | 9 | 12 | 19 | 22 | 25 | 28:
-            reward -= 1
-            return self._get_obs(), reward, terminated, truncated, info
+        # if action == 3 | 6 | 9 | 12 | 19 | 22 | 25 | 28:
+        #     reward -= 1
+        #     return self._get_obs(), reward, terminated, truncated, info
 
-        elif action < 16:
+        if action < 16:
             row = action // 4
             col = action % 4
             if self.yellow_field[row][col] in self.dice and self.yellow_field[row][col] != 0:
@@ -52,24 +52,24 @@ class GanzSchonCleverEnv(gym.Env):
                 reward -= 1
                 return self._get_obs(), reward, terminated, truncated, info
 
-        elif action < 32:
-            action -= 16
-            row = action // 4
-            col = action % 4
-            if self.extra_pick:
-                if self.yellow_field[row][col] in self.last_dice and self.yellow_field[row][col] != 0:
-                    self.yellow_field[row][col] = 0
-                    reward = self.check_rewards()
-                    if reward == 0:
-                        reward += 1
-                    self.score += reward
-                    return self._get_obs(), reward, terminated, truncated, info
-                else:
-                    reward -= 1
-                    return self._get_obs(), reward, terminated, truncated, info
-            else:
-                reward -= 1
-                return self._get_obs(), reward, terminated, truncated, info
+        # elif action < 32:
+        #     action -= 16
+        #     row = action // 4
+        #     col = action % 4
+        #     if self.extra_pick:
+        #         if self.yellow_field[row][col] in self.last_dice and self.yellow_field[row][col] != 0:
+        #             self.yellow_field[row][col] = 0
+        #             reward = self.check_rewards()
+        #             if reward == 0:
+        #                 reward += 1
+        #             self.score += reward
+        #             return self._get_obs(), reward, terminated, truncated, info
+        #         else:
+        #             reward -= 1
+        #             return self._get_obs(), reward, terminated, truncated, info
+        #     else:
+        #         reward -= 1
+        #         return self._get_obs(), reward, terminated, truncated, info
 
         else:
             reward -= 1000
@@ -94,7 +94,6 @@ class GanzSchonCleverEnv(gym.Env):
         self.rounds = self.initial_rounds
         self.dice = self.roll_dice()
         info = {}
-        self.stepcount = 20
         self.extra_pick_unlocked = False
 
         return self._get_obs(), info
@@ -130,5 +129,5 @@ class GanzSchonCleverEnv(gym.Env):
     def _get_obs(self):
         yellow_field_array = np.array(self.yellow_field, dtype=np.int32).flatten()
         dice_array = np.array(list(self.dice), dtype=np.int32)
-        obs = np.concatenate((yellow_field_array, dice_array, [self.extra_pick], [self.stepcount], [self.rounds]), axis=None)
+        obs = np.concatenate((yellow_field_array, dice_array, [self.extra_pick], [self.rounds]), axis=None)
         return obs
