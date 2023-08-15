@@ -29,6 +29,10 @@ class GanzSchonCleverEnv(gym.Env):
         truncated = False
         info = {}
 
+        if action == 3 | 6 | 9 | 12 | 19 | 22 | 25 | 28:
+            reward -= 10
+            return self._get_obs(), reward, terminated, truncated, info
+
         if action < 16:
             row = action // 4
             col = action % 4
@@ -38,7 +42,6 @@ class GanzSchonCleverEnv(gym.Env):
                 if reward == 0:
                     reward += 1
             else:
-                terminated = True  # end episode if invalid field action is taken
                 reward -= 10
                 return self._get_obs(), reward, terminated, truncated, info
 
@@ -55,12 +58,10 @@ class GanzSchonCleverEnv(gym.Env):
                     self.score += reward
                     return self._get_obs(), reward, terminated, truncated, info
                 else:
-                    terminated = True
                     reward -= 10
                     return self._get_obs(), reward, terminated, truncated, info
             else:
                 reward -= 10
-                terminated = True
                 return self._get_obs(), reward, terminated, truncated, info
 
         else:
