@@ -49,7 +49,9 @@ class GanzSchonCleverEnv(gym.Env):
                 if reward == 0:
                     reward += 1
             else:
-                reward -= 1
+                self.rounds -= 1
+                if self.rounds == 0:
+                    terminated = True
                 return self._get_obs(), reward, terminated, truncated, info
 
         # elif action < 32:
