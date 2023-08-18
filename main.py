@@ -19,7 +19,7 @@ def train_and_test_model():
     scores_history = [[] for _ in range(n_envs)]
     policy_kwargs = dict(net_arch=[64, 64, 64, 64])
 
-    model = PPO("MlpPolicy", env, gamma=1, learning_rate=0.001, policy_kwargs=policy_kwargs, ent_coef=0.001, verbose=2)
+    model = PPO("MlpPolicy", env, gamma=1, learning_rate=0.001, policy_kwargs=policy_kwargs, ent_coef=0.005, verbose=1)
     model.learn(total_timesteps=1000000)
     model.save("ppo_ganzschoenclever")
 
@@ -32,15 +32,18 @@ def train_and_test_model():
         obs, rewards, dones, info = env.step(action)
         j += 1
         scores_old = scores
-        scores += rewards
-        for i in range(4):
 
+        for i in range(4):
+            if rewards[i] > 3:
+                scores[i] += rewards[i]
+
+        for i in range(4):
             # if scores[i] > scores_old[i] | scores == 0:
             #     print("True in Step " + str(j))
             # else:
             #     print("False in Step " + str(j))
-
             print("Env:" + str(i) + " Points:" + str(scores[i]) + " in J:" + str(j))
+
         for i, done in enumerate(dones):
             if done:
                 scores_history[i].append(scores[i])  # Store the score for this episode

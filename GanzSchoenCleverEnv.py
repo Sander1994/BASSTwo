@@ -47,9 +47,10 @@ class GanzSchonCleverEnv(gym.Env):
                 self.yellow_field[row][col] = 0
                 reward = self.check_rewards()
                 if reward == 0:
-                    reward += 1
+                    reward += 3
             else:
                 self.rounds -= 1
+                reward -= 5
                 if self.rounds == 0:
                     terminated = True
                 return self._get_obs(), reward, terminated, truncated, info
