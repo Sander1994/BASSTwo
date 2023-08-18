@@ -47,7 +47,7 @@ class GanzSchonCleverEnv(gym.Env):
                 self.yellow_field[row][col] = 0
                 reward = self.check_rewards()
                 if reward == 0:
-                    reward += 3
+                    reward += 9
             else:
                 self.rounds -= 1
                 reward -= 15
