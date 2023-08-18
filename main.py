@@ -19,7 +19,7 @@ def train_and_test_model():
     scores_history = [[] for _ in range(n_envs)]
     policy_kwargs = dict(net_arch=[96, 96, 96])
 
-    model = PPO("MlpPolicy", env, gamma=1, learning_rate=0.00015, policy_kwargs=policy_kwargs, ent_coef=0.01, verbose=1)
+    model = PPO("MlpPolicy", env, gamma=1, learning_rate=0.00015, policy_kwargs=policy_kwargs, ent_coef=0.003, verbose=1)
     model.learn(total_timesteps=25000000)
     model.save("ppo_ganzschoenclever")
 
