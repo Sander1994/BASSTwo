@@ -17,10 +17,10 @@ def train_and_test_model():
 
     scores = np.zeros(n_envs)
     scores_history = [[] for _ in range(n_envs)]
-    policy_kwargs = dict(net_arch=[128, 128, 128, 128])
+    policy_kwargs = dict(net_arch=[64, 64, 64, 64])
 
     model = PPO("MlpPolicy", env, gamma=1, learning_rate=0.001, policy_kwargs=policy_kwargs, ent_coef=0.005, verbose=1)
-    model.learn(total_timesteps=1000000)
+    model.learn(total_timesteps=5000000)
     model.save("ppo_ganzschoenclever")
 
     model = PPO.load("ppo_ganzschoenclever")
@@ -34,7 +34,7 @@ def train_and_test_model():
         scores_old = scores
 
         for i in range(4):
-            if rewards[i] > 3:
+            if rewards[i] > 9:
                 scores[i] += rewards[i]
 
         for i in range(4):
