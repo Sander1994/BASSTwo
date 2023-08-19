@@ -6,7 +6,7 @@ import numpy as np
 
 
 def train_and_test_model():
-    n_envs = 4
+    n_envs = 16
 
     def make_env():
         def _init():
@@ -17,10 +17,11 @@ def train_and_test_model():
 
     scores = np.zeros(n_envs)
     scores_history = [[] for _ in range(n_envs)]
-    policy_kwargs = dict(net_arch=[96, 96, 96])
+    policy_kwargs = dict(net_arch=[256, 128, 64])
 
-    model = PPO("MlpPolicy", env, gamma=1, learning_rate=0.00015, policy_kwargs=policy_kwargs, ent_coef=0.01, verbose=1)
-    model.learn(total_timesteps=25000000)
+    model = PPO("MlpPolicy", env, gamma=1, learning_rate=0.0003,
+                policy_kwargs=policy_kwargs, ent_coef=0.01, clip_range=0.2, verbose=2)
+    model.learn(total_timesteps=1000000)
     model.save("ppo_ganzschoenclever")
 
     model = PPO.load("ppo_ganzschoenclever")
@@ -33,11 +34,11 @@ def train_and_test_model():
         j += 1
         scores_old = scores
 
-        for i in range(4):
+        for i in range(n_envs):
             if rewards[i] > 9:
                 scores[i] += rewards[i]
 
-        for i in range(4):
+        for i in range(n_envs):
             # if scores[i] > scores_old[i] | scores == 0:
             #     print("True in Step " + str(j))
             # else:
