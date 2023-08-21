@@ -20,9 +20,10 @@ def train_and_test_model():
     fails = np.zeros(n_envs)
     fails_history = [[] for _ in range(n_envs)]
     policy_kwargs = dict(net_arch=[512, 512, 512])
+    batch_size = 32
 
     model = PPO("MlpPolicy", env, gamma=1, learning_rate=0.0003, policy_kwargs=policy_kwargs, ent_coef=0.01,
-                clip_range=0.2, verbose=2, n_steps=2048*32)
+                clip_range=0.2, verbose=2, n_steps=2048*batch_size)
     model.learn(total_timesteps=1000000)
     model.save("ppo_ganzschoenclever")
 
