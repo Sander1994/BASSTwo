@@ -6,7 +6,7 @@ import numpy as np
 
 
 def train_and_test_model():
-    n_envs = 32
+    n_envs = 24
 
     def make_env():
         def _init():
@@ -19,12 +19,11 @@ def train_and_test_model():
     scores_history = [[] for _ in range(n_envs)]
     fails = np.zeros(n_envs)
     fails_history = [[] for _ in range(n_envs)]
-    policy_kwargs = dict(net_arch=[1024, 1024, 1024, 1024, 1024])
-    batch_multiplier = 16
+    policy_kwargs = dict(net_arch=[512, 256, 128, 64])
 
-    model = PPO("MlpPolicy", env, gamma=1, learning_rate=0.0003*batch_multiplier, policy_kwargs=policy_kwargs,
-                ent_coef=0.01, clip_range=0.3, verbose=1, n_steps=int(2048*batch_multiplier/8), n_epochs=42,
-                batch_size=int(64*batch_multiplier))
+    model = PPO("MlpPolicy", env, gamma=1, learning_rate=0.0003*2, policy_kwargs=policy_kwargs,
+                ent_coef=0.01, clip_range=0.2, verbose=1, n_steps=int(2048*2), n_epochs=42,
+                batch_size=int(64*3))
     model.learn(total_timesteps=3000000)
     model.save("ppo_ganzschoenclever")
 
