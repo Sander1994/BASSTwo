@@ -23,7 +23,7 @@ def train_and_test_model():
     batch_multiplier = 16
 
     model = PPO("MlpPolicy", env, gamma=1, learning_rate=0.0003*batch_multiplier, policy_kwargs=policy_kwargs,
-                ent_coef=0.01, clip_range=0.3, verbose=1, n_steps=2048*batch_multiplier, n_epochs=42,
+                ent_coef=0.01, clip_range=0.3, verbose=1, n_steps=int(2048*batch_multiplier/8), n_epochs=42,
                 batch_size=int(64*batch_multiplier))
     model.learn(total_timesteps=3000000)
     model.save("ppo_ganzschoenclever")
