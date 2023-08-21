@@ -21,7 +21,7 @@ def train_and_test_model():
     fails_history = [[] for _ in range(n_envs)]
     policy_kwargs = dict(net_arch=[256, 256, 256, 256])
 
-    model = PPO("MlpPolicy", env, gamma=1, learning_rate=0.0003*2, policy_kwargs=policy_kwargs,
+    model = PPO("MlpPolicy", env, gamma=1, learning_rate=0.0003*4, policy_kwargs=policy_kwargs,
                 ent_coef=0.01, clip_range=0.2, verbose=1, n_steps=int(2048*4), n_epochs=42,
                 batch_size=int(64*6))
     model.learn(total_timesteps=3000000)
