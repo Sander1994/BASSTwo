@@ -21,8 +21,10 @@ class GanzSchonCleverEnv(gym.Env):
         self.last_dice = None
         self.extra_pick_unlocked = False
 
+        low_bound = np.array([0]*16 + [1]*2 + [0])
+        high_bound = np.array([6]*16 + [6]*2 + [10])
         self.action_space = spaces.Discrete(16)
-        self.observation_space = spaces.Box(low=0, high=6, shape=(20,), dtype=np.int32)
+        self.observation_space = spaces.Box(low_bound, high_bound, shape=(19,), dtype=np.int32)
 
     def step(self, action):
         reward = 0
@@ -132,5 +134,5 @@ class GanzSchonCleverEnv(gym.Env):
     def _get_obs(self):
         yellow_field_array = np.array(self.yellow_field, dtype=np.int32).flatten()
         dice_array = np.array(list(self.dice), dtype=np.int32)
-        obs = np.concatenate((yellow_field_array, dice_array, [self.extra_pick], [self.rounds]), axis=None)
+        obs = np.concatenate((yellow_field_array, dice_array, [self.rounds]), axis=None)
         return obs

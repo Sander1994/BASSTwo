@@ -19,11 +19,11 @@ def train_and_test_model():
     scores_history = [[] for _ in range(n_envs)]
     fails = np.zeros(n_envs)
     fails_history = [[] for _ in range(n_envs)]
-    policy_kwargs = dict(net_arch=[512, 256, 128, 64])
+    policy_kwargs = dict(net_arch=[256, 256, 256, 256])
 
     model = PPO("MlpPolicy", env, gamma=1, learning_rate=0.0003*2, policy_kwargs=policy_kwargs,
-                ent_coef=0.01, clip_range=0.2, verbose=1, n_steps=int(2048*2), n_epochs=42,
-                batch_size=int(64*3))
+                ent_coef=0.01, clip_range=0.2, verbose=1, n_steps=int(2048*4), n_epochs=42,
+                batch_size=int(64*6))
     model.learn(total_timesteps=3000000)
     model.save("ppo_ganzschoenclever")
 
