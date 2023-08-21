@@ -6,7 +6,7 @@ import numpy as np
 
 
 def train_and_test_model():
-    n_envs = 16
+    n_envs = 4
 
     def make_env():
         def _init():
@@ -17,6 +17,8 @@ def train_and_test_model():
 
     scores = np.zeros(n_envs)
     scores_history = [[] for _ in range(n_envs)]
+    fails = np.zeros(n_envs)
+    fails_history = [[] for _ in range(n_envs)]
     policy_kwargs = dict(net_arch=[256, 128, 64])
 
     model = PPO("MlpPolicy", env, gamma=1, learning_rate=0.0003,
@@ -37,6 +39,8 @@ def train_and_test_model():
         for i in range(n_envs):
             if rewards[i] > 9:
                 scores[i] += rewards[i]
+            if rewards[i] == -15:
+                fails[i] += 1
 
         for i in range(n_envs):
             # if scores[i] > scores_old[i] | scores == 0:
@@ -47,16 +51,26 @@ def train_and_test_model():
 
         for i, done in enumerate(dones):
             if done:
-                scores_history[i].append(scores[i])  # Store the score for this episode
-                scores[i] = 0  # Reset the score
-                obs[i] = env.reset()[i]  # Reset the done environment
+                scores_history[i].append(scores[i])
+                fails_history[i].append(fails[i])
+                scores[i] = 0
+                fails[i] = 0
+                obs[i] = env.reset()[i]
 
-    for i, score_history in enumerate(scores_history):
+    # for i, score_history in enumerate(scores_history):
+    #     plt.figure()
+    #     plt.plot(score_history)
+    #     plt.title(f'Environment {i + 1} Score History')
+    #     plt.xlabel('Episode')
+    #     plt.ylabel('Score')
+    #     plt.show()
+
+    for i, fail_history in enumerate(fails_history):
         plt.figure()
-        plt.plot(score_history)
-        plt.title(f'Environment {i + 1} Score History')
+        plt.plot(fail_history)
+        plt.title(f'Environment {i + 1} Fail History')
         plt.xlabel('Episode')
-        plt.ylabel('Score')
+        plt.ylabel('Fails')
         plt.show()
 
 
