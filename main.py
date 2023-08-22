@@ -22,7 +22,7 @@ def train_and_test_model():
     policy_kwargs = dict(net_arch=[32, 32])
 
     model = PPO("MlpPolicy", env, gamma=1, learning_rate=0.0003*2, policy_kwargs=policy_kwargs,
-                ent_coef=0.0001, clip_range=0.2, verbose=1, n_steps=int(2048/32), n_epochs=11,
+                ent_coef=0.001, clip_range=0.2, verbose=1, n_steps=int(2048/32), n_epochs=11,
                 batch_size=int(2048/8))
     model.learn(total_timesteps=1000000)
     model.save("ppo_ganzschoenclever")
