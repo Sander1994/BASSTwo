@@ -22,7 +22,7 @@ def train_and_test_model():
     fails_history = [[] for _ in range(n_envs)]
 
     policy_kwargs = dict(net_arch=[256, 256, 256], activation_fn=nn.LeakyReLU)
-    model = PPO("MlpPolicy", env, gamma=0, learning_rate=0.0003*4, policy_kwargs=policy_kwargs,
+    model = PPO("MlpPolicy", env, gamma=0.95, learning_rate=0.0003*4, policy_kwargs=policy_kwargs,
                 ent_coef=0.01, clip_range=0.3, verbose=1, n_steps=int(2048/32), n_epochs=11,
                 batch_size=int(2048/8))
 
