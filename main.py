@@ -24,7 +24,7 @@ def train_and_test_model():
     model = PPO("MlpPolicy", env, gamma=1, learning_rate=0.0003*4, policy_kwargs=policy_kwargs,
                 ent_coef=0.01, clip_range=0.2, verbose=1, n_steps=int(2048*8), n_epochs=42,
                 batch_size=int(64*4), device="cpu")
-    model.learn(total_timesteps=5000000)
+    model.learn(total_timesteps=1000000)
     model.save("ppo_ganzschoenclever")
 
     model = PPO.load("ppo_ganzschoenclever")
