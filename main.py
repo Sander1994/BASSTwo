@@ -26,11 +26,11 @@ def train_and_test_model():
                 batch_size=int(2048/8))
 
     model.learn(total_timesteps=1000000)
-    model.gamma = 0.95
     model.ent_coef = 0
     model.save("ppo_ganzschoenclever")
 
     model = PPO.load("ppo_ganzschoenclever")
+    model.gamma = 0
 
     obs = env.reset()
     j = 0
