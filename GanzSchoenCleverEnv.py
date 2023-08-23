@@ -3,14 +3,18 @@ from gymnasium import spaces
 import numpy as np
 import random
 
+from numpy import ndarray
+
 
 class GanzSchonCleverEnv(gym.Env):
+    valid_action_mask: ndarray
     metadata = {'render.modes': ['human']}
 
     def __init__(self, rounds=10):
         super(GanzSchonCleverEnv, self).__init__()
         self.initial_rounds = rounds
         self.rounds = rounds
+        self.number_of_actions = 16
         self.yellow_field = [[3, 6, 5, 0], [2, 1, 0, 5], [1, 0, 2, 4], [0, 3, 4, 6]]
         self.dice = self.roll_dice()
         self.rewards = {'row': [10, 14, 16, 20], 'col': [10, 14, 16, 20]}
@@ -23,8 +27,9 @@ class GanzSchonCleverEnv(gym.Env):
 
         low_bound = np.array([0]*16 + [1]*2 + [0])
         high_bound = np.array([6]*16 + [6]*2 + [10])
-        self.action_space = spaces.Discrete(16)
+        self.action_space = spaces.Discrete(self.number_of_actions)
         self.observation_space = spaces.Box(low_bound, high_bound, shape=(19,), dtype=np.int32)
+        self.valid_action_mask = np.ones(self.number_of_actions)
 
     def step(self, action):
         reward = 0
@@ -136,3 +141,29 @@ class GanzSchonCleverEnv(gym.Env):
         dice_array = np.array(list(self.dice), dtype=np.int32)
         obs = np.concatenate((yellow_field_array, dice_array, [self.rounds]), axis=None)
         return obs
+
+    def valid_action_mask(self) -> np.ndarray:
+        self.valid_action_mask[:] = 1
+        for i in range(self.number_of_actions):
+            row = i % 4
+            col = int(i / 4)
+            if self.yellow_field[col][row] == 0:
+                self.valid_action_mask[i] = 0
+        if not self.dice.__contains__(1):
+            self.valid_action_mask[5] = 0
+            self.valid_action_mask[8] = 0
+        if not self.dice.__contains__(2):
+            self.valid_action_mask[4] = 0
+            self.valid_action_mask[10] = 0
+        if not self.dice.__contains__(3):
+            self.valid_action_mask[0] = 0
+            self.valid_action_mask[13] = 0
+        if not self.dice.__contains__(4):
+            self.valid_action_mask[11] = 0
+            self.valid_action_mask[14] = 0
+        if not self.dice.__contains__(5):
+            self.valid_action_mask[2] = 0
+            self.valid_action_mask[7] = 0
+        if not self.dice.__contains__(6):
+            self.valid_action_mask[15] = 0
+        return self.valid_action_mask
