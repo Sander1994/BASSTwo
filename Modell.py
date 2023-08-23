@@ -39,13 +39,13 @@ def train_and_test_model():
     # model.gamma = 1
     # model.save("maskableppo_ganzschoenclever")
 
-    model = MaskablePPO.load("maskableppo_ganzschoenclever")
+    model = MaskablePPO.load("maskableppo_ganzschoenclever_v2.0.8.zip")
 
     obs = env.reset()
     j = 0
     while j < 200:
         action_masks = get_action_masks(env)
-        action, _states = model.predict(obs)
+        action, _states = model.predict(obs, action_masks=action_masks)
         obs, rewards, dones, info = env.step(action)
         j += 1
 
@@ -71,13 +71,13 @@ def train_and_test_model():
                     fails[i] = 0
                     obs[i] = env.reset()[i]
 
-    # for i, score_history in enumerate(scores_history):
-    #     plt.figure()
-    #     plt.plot(score_history)
-    #     plt.title(f'Environment {i + 1} Score History')
-    #     plt.xlabel('Episode')
-    #     plt.ylabel('Score')
-    #     plt.show()
+    for i, score_history in enumerate(scores_history):
+        plt.figure()
+        plt.plot(score_history)
+        plt.title(f'Environment {i + 1} Score History')
+        plt.xlabel('Episode')
+        plt.ylabel('Score')
+        plt.show()
 
     for i, fail_history in enumerate(fails_history):
         plt.figure()
