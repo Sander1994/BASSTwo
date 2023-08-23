@@ -25,11 +25,11 @@ class GanzSchonCleverEnv(gym.Env):
         self.last_dice = None
         self.extra_pick_unlocked = False
 
-        low_bound = np.array([0]*16 + [1]*2 + [0])
-        high_bound = np.array([6]*16 + [6]*2 + [10])
+        low_bound = np.array([0]*16 + [1]*4 + [0])
+        high_bound = np.array([6]*16 + [6]*4 + [10])
         self.action_space = spaces.Discrete(self.number_of_actions)
-        self.observation_space = spaces.Box(low_bound, high_bound, shape=(19,), dtype=np.int32)
-        self.valid_action_mask_value = np.ones(16)
+        self.observation_space = spaces.Box(low_bound, high_bound, shape=(21,), dtype=np.int32)
+        self.valid_action_mask_value = np.ones(self.number_of_actions)
         self.valid_action_mask_value = self.valid_action_mask()
 
     def step(self, action):
@@ -124,7 +124,7 @@ class GanzSchonCleverEnv(gym.Env):
 
     @staticmethod
     def roll_dice():
-        return random.randint(1, 6), random.randint(1, 6)
+        return random.randint(1, 6), random.randint(1, 6), random.randint(1, 6), random.randint(1, 6)
 
     def check_rewards(self):
         reward = 0
@@ -153,21 +153,24 @@ class GanzSchonCleverEnv(gym.Env):
             col = int(i / 4)
             if self.yellow_field[col][row] == 0:
                 self.valid_action_mask_value[i] = 0
-        if not self.dice.__contains__(1):
+        if 1 not in self.dice:
             self.valid_action_mask_value[5] = 0
             self.valid_action_mask_value[8] = 0
-        if not self.dice.__contains__(2):
+        if 2 not in self.dice:
             self.valid_action_mask_value[4] = 0
             self.valid_action_mask_value[10] = 0
-        if not self.dice.__contains__(3):
+        if 3 not in self.dice:
             self.valid_action_mask_value[0] = 0
             self.valid_action_mask_value[13] = 0
-        if not self.dice.__contains__(4):
+        if 4 not in self.dice:
             self.valid_action_mask_value[11] = 0
             self.valid_action_mask_value[14] = 0
-        if not self.dice.__contains__(5):
+        if 5 not in self.dice:
             self.valid_action_mask_value[2] = 0
             self.valid_action_mask_value[7] = 0
-        if not self.dice.__contains__(6):
+        if 6 not in self.dice:
+            self.valid_action_mask_value[1] = 0
             self.valid_action_mask_value[15] = 0
+        if np.all(self.valid_action_mask_value == 0):
+            self.valid_action_mask_value[:] = 1
         return self.valid_action_mask_value

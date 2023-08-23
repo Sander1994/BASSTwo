@@ -21,6 +21,10 @@ def train_and_test_model():
         return _init
 
     env = SubprocVecEnv([make_env() for _ in range(n_envs)])
+    y = 1
+    action_masks = get_action_masks(env)
+
+
     scores = np.zeros(n_envs)
     scores_history = [[] for _ in range(4)]
     fails = np.zeros(n_envs)
@@ -42,6 +46,12 @@ def train_and_test_model():
     j = 0
     while j < 200:
         action_masks = get_action_masks(env)
+
+        for i in range(4):
+            if np.all(action_masks[i] == 1):
+                print("Es ist shit am dampfen " + str(y))
+                y += 1
+
         action, _states = model.predict(obs, action_masks=action_masks)
         obs, rewards, dones, info = env.step(action)
         j += 1
