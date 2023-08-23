@@ -62,12 +62,12 @@ def train_and_test_model():
             if rewards[i] == -15:
                 fails[i] += 1
 
-        for i in range(n_envs):
-            # if scores[i] > scores_old[i] | scores == 0:
-            #     print("True in Step " + str(j))
-            # else:
-            #     print("False in Step " + str(j))
-            print("Env:" + str(i) + " Points:" + str(scores[i]) + " in J:" + str(j))
+        # for i in range(n_envs):
+        #     if scores[i] > scores_old[i] | scores == 0:
+        #         print("True in Step " + str(j))
+        #     else:
+        #         print("False in Step " + str(j))
+        #     print("Env:" + str(i) + " Points:" + str(scores[i]) + " in J:" + str(j))
 
         for i, done in enumerate(dones):
             if done:
