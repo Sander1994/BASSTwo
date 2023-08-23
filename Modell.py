@@ -15,14 +15,9 @@ def train_and_test_model():
     def make_env():
         def _init():
             build_env = GanzSchonCleverEnv()
-            build_env = ActionMasker(build_env, mask_fn)
-            return build_env
+            return ActionMasker(build_env, mask_fn)
 
         return _init
-
-    def mask_fn(envclever: gym.Env) -> np.ndarray:
-        env_clever = cast(GanzSchonCleverEnv, envclever)
-        return env_clever.valid_action_mask
 
     env = SubprocVecEnv([make_env() for _ in range(n_envs)])
     scores = np.zeros(n_envs)
@@ -34,7 +29,7 @@ def train_and_test_model():
     model = MaskablePPO(MaskableActorCriticPolicy, env, gamma=0.9, learning_rate=0.0003*2,
                         policy_kwargs=policy_kwargs,
                         ent_coef=0.01, clip_range=0.2, verbose=1, n_steps=int(2048 / 32), n_epochs=10,
-                        batch_size=int(2048 / 16), seed=32)
+                        batch_size=int(2048 / 16))
 
     model.learn(total_timesteps=1000000)
     model.ent_coef = 0
@@ -87,3 +82,8 @@ def train_and_test_model():
         plt.xlabel('Episode')
         plt.ylabel('Fails')
         plt.show()
+
+
+def mask_fn(envclever: gym.Env) -> np.ndarray:
+    env_clever = cast(GanzSchonCleverEnv, envclever)
+    return env_clever.valid_action_mask_value
