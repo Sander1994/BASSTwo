@@ -28,18 +28,18 @@ def train_and_test_model():
     fails = np.zeros(n_envs)
     fails_history = [[] for _ in range(4)]
 
-    # policy_kwargs = dict(net_arch=[512, 512, 512, 512], activation_fn=nn.ReLU)
-    # model = MaskablePPO(MaskableActorCriticPolicy, env, gamma=0.75, learning_rate=0.0003*4,
-    #                     policy_kwargs=policy_kwargs,
-    #                     ent_coef=0.05, clip_range=0.3, verbose=1, n_steps=int(2048 / 32), n_epochs=10,
-    #                     batch_size=int(2048 / 8))
-    #
-    # model.learn(total_timesteps=1000000)
-    # model.ent_coef = 0
-    # model.gamma = 1
-    # model.save("maskableppo_ganzschoenclever")
+    policy_kwargs = dict(net_arch=[512, 512, 512, 512], activation_fn=nn.ReLU)
+    model = MaskablePPO(MaskableActorCriticPolicy, env, gamma=1, learning_rate=0.0003*2,
+                        policy_kwargs=policy_kwargs,
+                        ent_coef=0.05, clip_range=0.2, verbose=1, n_steps=int(2048 / 32), n_epochs=5,
+                        batch_size=int(2048 / 16))
 
-    model = MaskablePPO.load("maskableppo_ganzschoenclever_v2.0.8.zip")
+    model.learn(total_timesteps=3000000)
+    model.ent_coef = 0
+    model.gamma = 1
+    model.save("maskableppo_ganzschoenclever")
+
+    model = MaskablePPO.load("maskableppo_ganzschoenclever")
 
     obs = env.reset()
     j = 0
@@ -79,13 +79,13 @@ def train_and_test_model():
         plt.ylabel('Score')
         plt.show()
 
-    for i, fail_history in enumerate(fails_history):
-        plt.figure()
-        plt.plot(fail_history)
-        plt.title(f'Environment {i + 1} Fail History')
-        plt.xlabel('Episode')
-        plt.ylabel('Fails')
-        plt.show()
+    # for i, fail_history in enumerate(fails_history):
+    #     plt.figure()
+    #     plt.plot(fail_history)
+    #     plt.title(f'Environment {i + 1} Fail History')
+    #     plt.xlabel('Episode')
+    #     plt.ylabel('Fails')
+    #     plt.show()
 
 
 def mask_fn(env_clever: gym.Env) -> np.ndarray:
