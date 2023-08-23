@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import gymnasium as gym
 from typing import cast
+import torch.nn as nn
 
 
 def train_and_test_model():
@@ -29,7 +30,7 @@ def train_and_test_model():
     fails = np.zeros(n_envs)
     fails_history = [[] for _ in range(4)]
 
-    policy_kwargs = dict(net_arch=[512, 512, 512, 512])
+    policy_kwargs = dict(net_arch=[512, 512, 512, 512], activation_fn=nn.ReLU)
     model = MaskablePPO(MaskableActorCriticPolicy, env, gamma=0.75, learning_rate=0.0003*4,
                         policy_kwargs=policy_kwargs,
                         ent_coef=0.05, clip_range=0.3, verbose=1, n_steps=int(2048 / 32), n_epochs=10,
