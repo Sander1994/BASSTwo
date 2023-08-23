@@ -22,24 +22,22 @@ def train_and_test_model():
         return _init
 
     env = SubprocVecEnv([make_env() for _ in range(n_envs)])
-    y = 1
-    action_masks = get_action_masks(env)
 
     scores = np.zeros(n_envs)
     scores_history = [[] for _ in range(4)]
     fails = np.zeros(n_envs)
     fails_history = [[] for _ in range(4)]
 
-    policy_kwargs = dict(net_arch=[512, 512, 512, 512], activation_fn=nn.ReLU)
-    model = MaskablePPO(MaskableActorCriticPolicy, env, gamma=0.75, learning_rate=0.0003*4,
-                        policy_kwargs=policy_kwargs,
-                        ent_coef=0.05, clip_range=0.3, verbose=1, n_steps=int(2048 / 32), n_epochs=10,
-                        batch_size=int(2048 / 8))
-
-    model.learn(total_timesteps=1000000)
-    model.ent_coef = 0
-    model.gamma = 1
-    model.save("maskableppo_ganzschoenclever")
+    # policy_kwargs = dict(net_arch=[512, 512, 512, 512], activation_fn=nn.ReLU)
+    # model = MaskablePPO(MaskableActorCriticPolicy, env, gamma=0.75, learning_rate=0.0003*4,
+    #                     policy_kwargs=policy_kwargs,
+    #                     ent_coef=0.05, clip_range=0.3, verbose=1, n_steps=int(2048 / 32), n_epochs=10,
+    #                     batch_size=int(2048 / 8))
+    #
+    # model.learn(total_timesteps=1000000)
+    # model.ent_coef = 0
+    # model.gamma = 1
+    # model.save("maskableppo_ganzschoenclever")
 
     model = MaskablePPO.load("maskableppo_ganzschoenclever")
 
@@ -47,12 +45,6 @@ def train_and_test_model():
     j = 0
     while j < 200:
         action_masks = get_action_masks(env)
-
-        for i in range(4):
-            if np.all(action_masks[i] == 1):
-                print("Es ist shit am dampfen " + str(y))
-                y += 1
-
         action, _states = model.predict(obs)
         obs, rewards, dones, info = env.step(action)
         j += 1
@@ -60,7 +52,7 @@ def train_and_test_model():
         for i in range(n_envs):
             if rewards[i] > 9:
                 scores[i] += rewards[i]
-            if rewards[i] == -15:
+            if rewards[i] == -1:
                 fails[i] += 1
 
         # for i in range(n_envs):
