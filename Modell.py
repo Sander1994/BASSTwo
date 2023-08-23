@@ -29,14 +29,15 @@ def train_and_test_model():
     fails = np.zeros(n_envs)
     fails_history = [[] for _ in range(4)]
 
-    policy_kwargs = dict(net_arch=[256, 256, 256])
-    model = MaskablePPO(MaskableActorCriticPolicy, env, gamma=0.9, learning_rate=0.0003*2,
+    policy_kwargs = dict(net_arch=[512, 512, 512, 512])
+    model = MaskablePPO(MaskableActorCriticPolicy, env, gamma=0.75, learning_rate=0.0003*2,
                         policy_kwargs=policy_kwargs,
-                        ent_coef=0.01, clip_range=0.2, verbose=1, n_steps=int(2048 / 32), n_epochs=10,
-                        batch_size=int(2048 / 16))
+                        ent_coef=0.05, clip_range=0.3, verbose=1, n_steps=int(2048 / 32), n_epochs=10,
+                        batch_size=int(2048 / 8))
 
-    model.learn(total_timesteps=10000)
+    model.learn(total_timesteps=1000000)
     model.ent_coef = 0
+    model.gamma = 1
     model.save("maskableppo_ganzschoenclever")
 
     model = MaskablePPO.load("maskableppo_ganzschoenclever")
