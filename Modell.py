@@ -24,14 +24,13 @@ def train_and_test_model():
     y = 1
     action_masks = get_action_masks(env)
 
-
     scores = np.zeros(n_envs)
     scores_history = [[] for _ in range(4)]
     fails = np.zeros(n_envs)
     fails_history = [[] for _ in range(4)]
 
     policy_kwargs = dict(net_arch=[256, 256, 256])
-    model = MaskablePPO(MaskableActorCriticPolicy, env, gamma=0.99, learning_rate=0.0003*2,
+    model = MaskablePPO(MaskableActorCriticPolicy, env, gamma=0.9, learning_rate=0.0003*2,
                         policy_kwargs=policy_kwargs,
                         ent_coef=0.01, clip_range=0.2, verbose=1, n_steps=int(2048 / 32), n_epochs=10,
                         batch_size=int(2048 / 16))
@@ -52,7 +51,7 @@ def train_and_test_model():
                 print("Es ist shit am dampfen " + str(y))
                 y += 1
 
-        action, _states = model.predict(obs, action_masks=action_masks)
+        action, _states = model.predict(obs)
         obs, rewards, dones, info = env.step(action)
         j += 1
 
