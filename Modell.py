@@ -1,6 +1,7 @@
 from sb3_contrib.common.maskable.policies import MaskableActorCriticPolicy
 from sb3_contrib.common.wrappers import ActionMasker
 from sb3_contrib.ppo_mask import MaskablePPO
+from sb3_contrib.common.maskable.utils import get_action_masks
 from stable_baselines3.common.vec_env import SubprocVecEnv
 from GanzSchoenCleverEnv import *
 import matplotlib.pyplot as plt
@@ -15,8 +16,8 @@ def train_and_test_model():
     def make_env():
         def _init():
             build_env = GanzSchonCleverEnv()
-            return ActionMasker(build_env, mask_fn)
-
+            build_env = ActionMasker(build_env, mask_fn)
+            return build_env
         return _init
 
     env = SubprocVecEnv([make_env() for _ in range(n_envs)])
@@ -26,22 +27,22 @@ def train_and_test_model():
     fails_history = [[] for _ in range(4)]
 
     policy_kwargs = dict(net_arch=[256, 256, 256])
-    model = MaskablePPO(MaskableActorCriticPolicy, env, gamma=0.9, learning_rate=0.0003*2,
+    model = MaskablePPO(MaskableActorCriticPolicy, env, gamma=0.99, learning_rate=0.0003*2,
                         policy_kwargs=policy_kwargs,
                         ent_coef=0.01, clip_range=0.2, verbose=1, n_steps=int(2048 / 32), n_epochs=10,
                         batch_size=int(2048 / 16))
 
-    model.learn(total_timesteps=1000000)
+    model.learn(total_timesteps=10000)
     model.ent_coef = 0
     model.save("maskableppo_ganzschoenclever")
 
     model = MaskablePPO.load("maskableppo_ganzschoenclever")
-    model.gamma = 0
 
     obs = env.reset()
     j = 0
     while j < 200:
-        action, _states = model.predict(obs)
+        action_masks = get_action_masks(env)
+        action, _states = model.predict(obs, action_masks=action_masks)
         obs, rewards, dones, info = env.step(action)
         j += 1
 
@@ -84,6 +85,6 @@ def train_and_test_model():
         plt.show()
 
 
-def mask_fn(envclever: gym.Env) -> np.ndarray:
-    env_clever = cast(GanzSchonCleverEnv, envclever)
-    return env_clever.valid_action_mask_value
+def mask_fn(env_clever: gym.Env) -> np.ndarray:
+    env_clever = cast(GanzSchonCleverEnv, env_clever)
+    return env_clever.valid_action_mask()

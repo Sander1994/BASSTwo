@@ -94,6 +94,7 @@ class GanzSchonCleverEnv(gym.Env):
         if self.rounds == 0:
             terminated = True
         self.valid_action_mask_value = self.valid_action_mask()
+        info = {}
 
         return self._get_obs(), reward, terminated, truncated, info
 
@@ -105,9 +106,9 @@ class GanzSchonCleverEnv(gym.Env):
         self.score = 0
         self.rounds = self.initial_rounds
         self.dice = self.roll_dice()
-        info = {}
         self.extra_pick_unlocked = False
         self.valid_action_mask_value = self.valid_action_mask()
+        info = {}
 
         return self._get_obs(), info
 
