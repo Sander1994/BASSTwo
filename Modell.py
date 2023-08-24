@@ -52,8 +52,8 @@ def train_and_test_model():
         for i in range(n_envs):
             if rewards[i] > 9:
                 scores[i] += rewards[i]
-            if rewards[i] == -1:
-                fails[i] += 1
+            # if rewards[i] == -1:
+            #     fails[i] += 1
 
         # for i in range(n_envs):
         #     if scores[i] > scores_old[i] | scores == 0:
