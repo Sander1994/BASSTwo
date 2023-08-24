@@ -34,7 +34,7 @@ def train_and_test_model():
                         ent_coef=0.05, clip_range=0.2, verbose=1, n_steps=int(2048 / 32), n_epochs=5,
                         batch_size=int(2048 / 16))
 
-    model.learn(total_timesteps=3000000)
+    model.learn(total_timesteps=1000000)
     model.ent_coef = 0
     model.gamma = 1
     model.save("maskableppo_ganzschoenclever")
