@@ -6,7 +6,7 @@ import random
 from numpy import ndarray
 
 
-# GanzSchonClever environment class
+# ganzSchonClever environment class
 class GanzSchonCleverEnv(gym.Env):
     valid_action_mask_value: ndarray
     metadata = {'render.modes': ['human']}
