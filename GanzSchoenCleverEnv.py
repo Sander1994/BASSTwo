@@ -6,11 +6,11 @@ import random
 from numpy import ndarray
 
 
+# GanzSchonClever environment class
 class GanzSchonCleverEnv(gym.Env):
     valid_action_mask_value: ndarray
     metadata = {'render.modes': ['human']}
 
-    # ganzSchonClever environment class
     def __init__(self, rounds=10):
         super(GanzSchonCleverEnv, self).__init__()
         self.initial_rounds = rounds
