@@ -1,14 +1,9 @@
 from Modell import *
-from GanzSchoenCleverEnv import *
 
 
 def main():
-
-    train_and_test_model()
-    # env = GanzSchonCleverEnv()
-    # print(env.valid_action_mask_value)
-    # print(env.yellow_field)
-    # print(env.dice)
+    model_learn(net_arch=[512, 512, 512, 512], total_timesteps=100000)
+    model_predict()
 
 
 if __name__ == "__main__":

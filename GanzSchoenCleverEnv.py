@@ -10,6 +10,7 @@ class GanzSchonCleverEnv(gym.Env):
     valid_action_mask_value: ndarray
     metadata = {'render.modes': ['human']}
 
+    # ganzSchonClever environment class
     def __init__(self, rounds=10):
         super(GanzSchonCleverEnv, self).__init__()
         self.initial_rounds = rounds
@@ -32,21 +33,12 @@ class GanzSchonCleverEnv(gym.Env):
         self.valid_action_mask_value = np.ones(self.number_of_actions)
         self.valid_action_mask_value = self.valid_action_mask()
 
+    # executing actions and returning observations
     def step(self, action):
         reward = 0
         terminated = False
         truncated = False
         info = {}
-
-        # self.stepcount -= 1
-        # if self.stepcount <= 0:
-        #     terminated = True
-        #     reward -= 100
-        #     return self._get_obs(), reward, terminated, truncated, info
-
-        # if action == 3 | 6 | 9 | 12 | 19 | 22 | 25 | 28:
-        #     reward -= 1
-        #     return self._get_obs(), reward, terminated, truncated, info
 
         if action < 16:
             row = action // 4
@@ -54,14 +46,14 @@ class GanzSchonCleverEnv(gym.Env):
             if self.yellow_field[row][col] in self.dice and self.yellow_field[row][col] != 0:
                 self.yellow_field[row][col] = 0
                 reward = self.check_rewards()
-                # if reward == 0:
-                #     reward += 9
             else:
                 self.rounds -= 1
+                reward -= 1
                 if self.rounds == 0:
                     terminated = True
                 return self._get_obs(), reward, terminated, truncated, info
 
+        # process for the extra pick reward
         # elif action < 32:
         #     action -= 16
         #     row = action // 4
@@ -97,6 +89,7 @@ class GanzSchonCleverEnv(gym.Env):
 
         return self._get_obs(), reward, terminated, truncated, info
 
+    # resetting the environment
     def reset(self, seed=None, **kwargs):
         self.score_history.append(self.score)
         self.yellow_field = [[3, 6, 5, 0], [2, 1, 0, 5], [1, 0, 2, 4], [0, 3, 4, 6]]
@@ -111,6 +104,7 @@ class GanzSchonCleverEnv(gym.Env):
 
         return self._get_obs(), info
 
+    # rendering the process
     def render(self, mode='human'):
         if mode == 'human':
             print(f'Yellow Field: {self.yellow_field}')
@@ -121,10 +115,12 @@ class GanzSchonCleverEnv(gym.Env):
         else:
             raise ValueError(f'Render mode {mode} is not supported')
 
+    # rolling the dice
     @staticmethod
     def roll_dice():
         return random.randint(1, 6), random.randint(1, 6), random.randint(1, 6), random.randint(1, 6)
 
+    # checking the rewards for the current step
     def check_rewards(self):
         reward = 0
         for i in range(4):
@@ -139,12 +135,14 @@ class GanzSchonCleverEnv(gym.Env):
             self.extra_pick_unlocked = True
         return reward
 
+    # returning current observations
     def _get_obs(self):
         yellow_field_array = np.array(self.yellow_field, dtype=np.int32).flatten()
         dice_array = np.array(list(self.dice), dtype=np.int32)
         obs = np.concatenate((yellow_field_array, dice_array, [self.rounds]), axis=None)
         return obs
 
+    # returning current action mask
     def valid_action_mask(self) -> np.ndarray:
         self.valid_action_mask_value[:] = 1
         for i in range(self.number_of_actions):
@@ -170,6 +168,4 @@ class GanzSchonCleverEnv(gym.Env):
         if 6 not in self.dice:
             self.valid_action_mask_value[1] = 0
             self.valid_action_mask_value[15] = 0
-        if np.all(self.valid_action_mask_value == 0):
-            self.valid_action_mask_value[:] = 1
         return self.valid_action_mask_value
