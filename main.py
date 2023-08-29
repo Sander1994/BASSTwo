@@ -1,5 +1,5 @@
 from Modell import *
-from GanzSchoenCleverEnv import *
+
 
 def main():
     model_learn(net_arch=[512, 512, 512, 512], total_timesteps=100000)
