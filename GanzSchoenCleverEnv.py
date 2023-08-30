@@ -5,7 +5,7 @@ import random
 from numpy import ndarray
 
 
-# ganzSchonClever environment class
+# GanzSchonClever environment class
 class GanzSchonCleverEnv(gym.Env):
     valid_action_mask_value: ndarray
     metadata = {'render.modes': ['human']}
@@ -28,7 +28,7 @@ class GanzSchonCleverEnv(gym.Env):
         low_bound = np.array([0]*16 + [1]*4 + [0])
         high_bound = np.array([6]*16 + [6]*4 + [10])
         self.action_space = spaces.Discrete(self.number_of_actions)
-        self.observation_space = spaces.Box(low_bound, high_bound, shape=(21,), dtype=np.int32)
+        self.observation_space = spaces.Box(low_bound, high_bound, shape=(19,), dtype=np.int32)
         self.valid_action_mask_value = np.ones(self.number_of_actions)
         self.valid_action_mask_value = self.valid_action_mask()
 
@@ -117,7 +117,7 @@ class GanzSchonCleverEnv(gym.Env):
     # rolling the dice
     @staticmethod
     def roll_dice():
-        return random.randint(1, 6), random.randint(1, 6), random.randint(1, 6), random.randint(1, 6)
+        return random.randint(1, 6), random.randint(1, 6)
 
     # checking the rewards for the current step
     def check_rewards(self):

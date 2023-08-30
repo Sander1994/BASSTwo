@@ -1,4 +1,3 @@
-
 from Modell import *
 
 
