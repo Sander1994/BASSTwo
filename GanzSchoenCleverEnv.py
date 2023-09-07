@@ -3,7 +3,7 @@ from gymnasium import spaces
 import numpy as np
 import random
 from numpy import ndarray
-
+#p
 
 # GanzSchonClever environment class
 class GanzSchonCleverEnv(gym.Env):
