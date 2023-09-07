@@ -31,10 +31,11 @@ class GanzSchonCleverEnv(gym.Env):
         self.last_dice = None
         self.extra_pick_unlocked = False
 
-        low_bound = np.array([0]*16 + [0]*11 + [1]*4 + [0])
-        high_bound = np.array([6]*16 + [6]*11 + [6]*4 + [10])
+        low_bound = np.array([0]*16 + [0]*11 + [1]*6 + [0])
+        high_bound = np.array([6]*16 + [6]*11 + [6]*6 + [10])
         self.action_space = spaces.Discrete(self.number_of_actions)
-        self.observation_space = spaces.Box(low_bound, high_bound, shape=(32,), dtype=np.int32)
+        self.observation_space = spaces.Box(low_bound, high_bound, shape=(34,), dtype=np.int32)
+        self.valid_action_mask_value = np.ones(self.number_of_actions)
         self.valid_action_mask_value = self.valid_action_mask()
 
     # executing actions and returning observations
@@ -163,7 +164,7 @@ class GanzSchonCleverEnv(gym.Env):
     # returning current observations
     def _get_obs(self):
         yellow_field_array = np.array(self.yellow_field, dtype=np.int32).flatten()
-        blue_field_array = np.array(self.blue_field, dtype=np.int32).flatten()
+        blue_field_array = np.concatenate(self.blue_field, dtype=np.int32).flatten()
         dice_array = np.array(list(self.dice.values()), dtype=np.int32)
         obs = np.concatenate((yellow_field_array, dice_array, blue_field_array, [self.rounds]), axis=None)
         return obs
@@ -204,27 +205,27 @@ class GanzSchonCleverEnv(gym.Env):
                 if element == 0:
                     self.valid_action_mask_value[m] = 0
                 m += 1
-        if self.dice["blue"] + self.dice["white"] is not 2:
+        if self.dice["blue"] + self.dice["white"] != 2:
             self.valid_action_mask_value[16] = 0
-        if self.dice["blue"] + self.dice["white"] is not 3:
+        if self.dice["blue"] + self.dice["white"] != 3:
             self.valid_action_mask_value[17] = 0
-        if self.dice["blue"] + self.dice["white"] is not 4:
+        if self.dice["blue"] + self.dice["white"] != 4:
             self.valid_action_mask_value[18] = 0
-        if self.dice["blue"] + self.dice["white"] is not 5:
+        if self.dice["blue"] + self.dice["white"] != 5:
             self.valid_action_mask_value[19] = 0
-        if self.dice["blue"] + self.dice["white"] is not 6:
+        if self.dice["blue"] + self.dice["white"] != 6:
             self.valid_action_mask_value[20] = 0
-        if self.dice["blue"] + self.dice["white"] is not 7:
+        if self.dice["blue"] + self.dice["white"] != 7:
             self.valid_action_mask_value[21] = 0
-        if self.dice["blue"] + self.dice["white"] is not 8:
+        if self.dice["blue"] + self.dice["white"] != 8:
             self.valid_action_mask_value[22] = 0
-        if self.dice["blue"] + self.dice["white"] is not 9:
+        if self.dice["blue"] + self.dice["white"] != 9:
             self.valid_action_mask_value[23] = 0
-        if self.dice["blue"] + self.dice["white"] is not 10:
+        if self.dice["blue"] + self.dice["white"] != 10:
             self.valid_action_mask_value[24] = 0
-        if self.dice["blue"] + self.dice["white"] is not 11:
+        if self.dice["blue"] + self.dice["white"] != 11:
             self.valid_action_mask_value[25] = 0
-        if self.dice["blue"] + self.dice["white"] is not 12:
+        if self.dice["blue"] + self.dice["white"] != 12:
             self.valid_action_mask_value[26] = 0
 
         return self.valid_action_mask_value
