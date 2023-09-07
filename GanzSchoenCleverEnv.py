@@ -48,7 +48,7 @@ class GanzSchonCleverEnv(gym.Env):
         if action < 16:
             row = action // 4
             col = action % 4
-            if self.yellow_field[row][col] in self.dice and self.yellow_field[row][col] != 0:
+            if self.yellow_field[row][col] in self.dice.values() and self.yellow_field[row][col] != 0:
                 self.yellow_field[row][col] = 0
                 reward = self.check_rewards()
             else:
@@ -150,6 +150,7 @@ class GanzSchonCleverEnv(gym.Env):
                     blue_field_count += 1
         if not self.blue_count_reward_flags[blue_field_count - 1]:
             reward += self.blue_count_rewards[blue_field_count - 1]
+            self.blue_count_reward_flags[blue_field_count-1] = True
         for i in range(len(self.blue_field)):
             if all(element == 0 for element in self.blue_field[i]) and not self.blue_reward_flags["row"][i]:
                 reward += self.blue_reward_flags["row"][i]

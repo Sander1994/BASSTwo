@@ -56,7 +56,7 @@ def make_fail_entries(rewards, fails, number_of_entries=4):
 # making a score entry
 def make_score_entries(rewards, scores, number_of_entries=4):
     for i in range(number_of_entries):
-        if rewards[i] > 9:
+        if rewards[i] > 0:
             scores[i] += rewards[i]
 
 
