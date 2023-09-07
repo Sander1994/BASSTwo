@@ -150,6 +150,7 @@ class GanzSchonCleverEnv(gym.Env):
                     blue_field_count += 1
         if not self.blue_count_reward_flags[blue_field_count - 1]:
             reward += self.blue_count_rewards[blue_field_count - 1]
+            self.blue_count_reward_flags[blue_field_count-1] = True
         for i in range(len(self.blue_field)):
             if all(element == 0 for element in self.blue_field[i]) and not self.blue_reward_flags["row"][i]:
                 reward += self.blue_reward_flags["row"][i]
