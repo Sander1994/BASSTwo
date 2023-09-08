@@ -46,6 +46,10 @@ class GanzSchonCleverEnv(gym.Env):
         truncated = False
         info = {}
 
+        for row in self.blue_field:
+            for i in range(len(row)):
+                row[i] = 0
+
         if action < 16:
             row = action // 4
             col = action % 4
