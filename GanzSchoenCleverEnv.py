@@ -21,7 +21,7 @@ class GanzSchonCleverEnv(gym.Env):
         self.yellow_reward_flags = {'row': [False] * 4, 'col': [False] * 4,
                                     'dia': False}
         self.blue_field = [[0, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
-        self.blue_rewards = {"row": [14, 160, 200], "col": [10, 14, 14, 16]}
+        self.blue_rewards = {"row": [14, 1600, 2000], "col": [10, 14, 14, 16]}
         self.blue_reward_flags = {"row": [False] * 3, "col": [False] * 4}
         self.blue_count_rewards = [0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         self.blue_count_reward_flags = [False] * 12
@@ -156,7 +156,7 @@ class GanzSchonCleverEnv(gym.Env):
             if all(element == 0 for element in self.blue_field[i]) and not self.blue_reward_flags["row"][i]:
                 reward += self.blue_reward_flags["row"][i]
                 self.blue_reward_flags["row"][i] = True
-        for i in range(len(self.blue_field)):
+        for i in range(max(len(row) for row in self.blue_field)):
             if all(row[i] == 0 for row in self.blue_field) and not self.blue_reward_flags["col"][i]:
                 reward += self.blue_rewards["col"][i]
                 self.blue_reward_flags["col"][i] = True
