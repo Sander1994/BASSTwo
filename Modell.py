@@ -29,7 +29,7 @@ def model_learn(n_envs=32, name="maskableppo_ganzschoenclever", net_arch=None, a
 
 
 # making predictions with the model
-def model_predict(n_steps=200, model_name="maskableppo_ganzschoenclever", n_envs=1):
+def model_predict(n_steps=200, model_name="maskableppo_ganzschoenclever", n_envs=1, render_mode="human", render=False):
     model = MaskablePPO.load(model_name)
     envs, scores, score_history, fails, fail_history = \
         _init_envs(n_envs, n_envs, scores=True, fails=True)
@@ -42,6 +42,8 @@ def model_predict(n_steps=200, model_name="maskableppo_ganzschoenclever", n_envs
         make_fail_entries(rewards, fails, number_of_entries=n_envs)
         make_score_history_entry(dones, scores, score_history, number_of_entries=n_envs)
         make_fail_history_entry(dones, fails, fail_history, number_of_entries=n_envs)
+        if render is True:
+            envs.render(render_mode=render_mode)
 
     plot_history(score_history, "score")
     plot_history(fail_history, "fails")

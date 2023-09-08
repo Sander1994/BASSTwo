@@ -10,7 +10,7 @@ class GanzSchonCleverEnv(gym.Env):
     valid_action_mask_value: ndarray
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, rounds=10):
+    def __init__(self, rounds=10, render_mode="human"):
         super(GanzSchonCleverEnv, self).__init__()
         self.initial_rounds = rounds
         self.rounds = rounds
@@ -30,6 +30,7 @@ class GanzSchonCleverEnv(gym.Env):
         self.score_history = []
         self.last_dice = None
         self.extra_pick_unlocked = False
+        self.render_mode = render_mode
 
         low_bound = np.array([0]*16 + [0]*12 + [1]*6 + [0])
         high_bound = np.array([6]*16 + [6]*12 + [6]*6 + [10])
@@ -109,13 +110,13 @@ class GanzSchonCleverEnv(gym.Env):
         return self._get_obs(), info
 
     # rendering the process
-    def render(self, mode="human"):
-        if mode == 'human':
+    def render(self):
+        if self.render_mode == 'human':
             print(f'Yellow Field: {self.yellow_field}')
             print(f'Blue Field: {self.blue_field}')
             print(f'Dice: {self.dice}')
             print(f'Score: {self.score}')
-        elif mode == 'rgb_array':
+        elif self.render_mode == 'rgb_array':
             raise NotImplementedError('rgb_array mode is not supported')
         else:
             raise ValueError(f'Render mode {self.render_mode} is not supported')
@@ -155,7 +156,7 @@ class GanzSchonCleverEnv(gym.Env):
             if all(element == 0 for element in self.blue_field[i]) and not self.blue_reward_flags["row"][i]:
                 reward += self.blue_reward_flags["row"][i]
                 self.blue_reward_flags["row"][i] = True
-        for i, row in self.blue_field:
+        for i in range(len(self.blue_field)):
             if all(row[i] == 0 for row in self.blue_field) and not self.blue_reward_flags["col"][i]:
                 reward += self.blue_rewards["col"][i]
                 self.blue_reward_flags["col"][i] = True
