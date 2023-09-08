@@ -29,7 +29,7 @@ def model_learn(n_envs=32, name="maskableppo_ganzschoenclever", net_arch=None, a
 
 
 # making predictions with the model
-def model_predict(n_steps=200, model_name="maskableppo_ganzschoenclever", n_envs=1, render_mode="human", render=False):
+def model_predict(n_steps=200, model_name="maskableppo_ganzschoenclever", n_envs=1, render=False):
     model = MaskablePPO.load(model_name)
     envs, scores, score_history, fails, fail_history = \
         _init_envs(n_envs, n_envs, scores=True, fails=True)
@@ -43,7 +43,7 @@ def model_predict(n_steps=200, model_name="maskableppo_ganzschoenclever", n_envs
         make_score_history_entry(dones, scores, score_history, number_of_entries=n_envs)
         make_fail_history_entry(dones, fails, fail_history, number_of_entries=n_envs)
         if render is True:
-            envs.render(render_mode=render_mode)
+            envs.render()
 
     plot_history(score_history, "score")
     plot_history(fail_history, "fails")
@@ -97,9 +97,9 @@ def mask_fn(env_clever: gym.Env) -> np.ndarray:
 
 
 # initializing environments
-def _init_envs(n_envs=1, number_of_entries=None, scores=False, fails=False):
+def _init_envs(n_envs=1, number_of_entries=None, scores=False, fails=False, render_mode="human"):
     def _init():
-        env_make = GanzSchonCleverEnv()
+        env_make = GanzSchonCleverEnv(render_mode=render_mode)
         env_make = ActionMasker(env_make, mask_fn)
         return env_make
 
