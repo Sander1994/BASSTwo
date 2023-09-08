@@ -3,7 +3,7 @@ from Modell import *
 
 def main():
     # model_learn(net_arch=[512, 512, 512, 512], total_timesteps=1000000)
-    model_predict(n_envs=1, render=True)
+    model_predict(n_envs=1, render=True, n_steps=5000)
 
 
 if __name__ == "__main__":
