@@ -10,32 +10,54 @@ class GanzSchonCleverEnv(gym.Env):
     valid_action_mask_value: ndarray
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, rounds=10, render_mode="human"):
+    def __init__(self, rounds=18, render_mode="human"):
         super(GanzSchonCleverEnv, self).__init__()
         self.initial_rounds = rounds
         self.rounds = rounds
-        self.number_of_actions = 28
+        self.number_of_actions = 63
         self.dice = self.roll_dice()
         self.yellow_field = [[3, 6, 5, 0], [2, 1, 0, 5], [1, 0, 2, 4], [0, 3, 4, 6]]
-        self.yellow_rewards = {'row': [10, 14, 16, 20], 'col': [10, 14, 16, 20], 'dia': "+1"}
-        self.yellow_reward_flags = {'row': [False] * 4, 'col': [False] * 4,
-                                    'dia': False}
+        self.yellow_rewards = {"row": [10, 14, 16, 20], "col": [10, 14, 16, 20], "dia": "re_roll"}
+        self.yellow_reward_flags = {"row": [False] * 4, "col": [False] * 4,
+                                    "dia": False}
         self.blue_field = [[0, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
         self.blue_rewards = {"row": [14, 16, 20], "col": [10, 14, 14, 16]}
         self.blue_reward_flags = {"row": [False] * 3, "col": [False] * 4}
         self.blue_count_rewards = [0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         self.blue_count_reward_flags = [False] * 12
-        self.extra_pick = False
+        self.green_field = [0] * 11
+        self.green_rewards = [None, None, None, "extra_pick", None, "blue_cross", "fox", None, "purple_six", "re_roll",
+                              None]
+        self.green_reward_flags = [False] * 11
+        self.green_count_rewards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        self.orange_field = [0] * 11
+        self.orange_rewards = [None, None, "re_roll", None, "yellow_cross", "extra_pick", None, "fox", None,
+                               "purple_six", None]
+        self.orange_reward_flags = [False] * 11
+        self.purple_field = [0] * 11
+        self.purple_rewards = [None, None, "re_roll", "blue_cross", "extra_pick", "yellow_cross", "fox", "re_roll",
+                               "green_cross", "orange_six", "extra_pick"]
+        self.purple_reward_flags = [False] * 11
+        self.extra_pick = 0
+        self.re_roll = 0
+        self.fox = 0
+        self.orange_four = 0
+        self.orange_five = 0
+        self.orange_six = 0
+        self.purple_six = 0
+        self.yellow_cross = 0
+        self.blue_cross = 0
+        self.green_cross = 0
+
         self.score = 0
         self.score_history = []
         self.last_dice = None
-        self.extra_pick_unlocked = False
         self.render_mode = render_mode
 
-        low_bound = np.array([0]*16 + [0]*12 + [1]*6 + [0])
-        high_bound = np.array([6]*16 + [6]*12 + [6]*6 + [10])
+        low_bound = np.array([0]*16 + [0]*12 + [0] * 11 + [0] * 11 + [0] * 11 + [1]*6 + [0] + [0] * 2 + [0] * 7)
+        high_bound = np.array([6]*16 + [6]*12 + [1] * 11 + [6] * 11 + [6] * 11 + [6]*6 + [10] + [6] * 2 + [1] * 7)
         self.action_space = spaces.Discrete(self.number_of_actions)
-        self.observation_space = spaces.Box(low_bound, high_bound, shape=(35,), dtype=np.int8)
+        self.observation_space = spaces.Box(low_bound, high_bound, shape=(77,), dtype=np.int8)
         self.valid_action_mask_value = np.ones(self.number_of_actions)
         self.valid_action_mask_value = self.valid_action_mask()
 
@@ -45,10 +67,6 @@ class GanzSchonCleverEnv(gym.Env):
         terminated = False
         truncated = False
         info = {}
-
-        for row in self.blue_field:
-            for i in range(len(row)):
-                row[i] = 0
 
         if action < 16:
             row = action // 4
@@ -79,6 +97,21 @@ class GanzSchonCleverEnv(gym.Env):
                     terminated = True
                 return self._get_obs(), reward, terminated, truncated, info
 
+        elif action < 39:
+            # green field action
+
+        elif action < 50:
+            # orange field action
+
+        elif action < 61:
+            # purple field action
+
+        elif action < 62:
+            # extra pick action
+
+        elif action < 63:
+            # re roll aciton
+
         else:
             reward -= 1000
             terminated = True
@@ -103,11 +136,22 @@ class GanzSchonCleverEnv(gym.Env):
         self.blue_field = [[0, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
         self.blue_reward_flags = {"row": [False] * 3, "col": [False] * 4}
         self.blue_count_reward_flags = [False] * 12
-        self.extra_pick = False
+        self.green_field = [0] * 11
+        self.orange_field = [0] * 11
+        self.purple_field = [0] * 11
+        self.extra_pick = 0
+        self.re_roll = 0
+        self.fox = 0
+        self.orange_four = 0
+        self.orange_five = 0
+        self.orange_six = 0
+        self.purple_six = 0
+        self.yellow_cross = 0
+        self.blue_cross = 0
+        self.green_cross = 0
         self.score = 0
         self.rounds = self.initial_rounds
         self.dice = self.roll_dice()
-        self.extra_pick_unlocked = False
         self.valid_action_mask_value = self.valid_action_mask()
         info = {}
 
@@ -118,6 +162,9 @@ class GanzSchonCleverEnv(gym.Env):
         if self.render_mode == 'human':
             print(f'Yellow Field: {self.yellow_field}')
             print(f'Blue Field: {self.blue_field}')
+            print(f'Green Field: {self.green_field}')
+            print(f'Orange Field: {self.orange_field}')
+            print(f'Purple Field: {self.purple_field}')
             print(f'Dice: {self.dice}')
             print(f'Score: {self.score}')
         elif self.render_mode == 'rgb_array':
@@ -146,7 +193,7 @@ class GanzSchonCleverEnv(gym.Env):
                 self.yellow_reward_flags['col'][i] = True
         if all(self.yellow_field[i][i] == 0 for i in range(4)) and not self.extra_pick and not self.extra_pick_unlocked:
             self.extra_pick = True
-            self.extra_pick_unlocked = True
+            self.yellow_reward_flags["dia"] = True
 
         # blue field rewards
         for row in self.blue_field:
@@ -171,8 +218,14 @@ class GanzSchonCleverEnv(gym.Env):
     def _get_obs(self):
         yellow_field_array = np.array(self.yellow_field, dtype=np.int8).flatten()
         blue_field_array = np.array(self.blue_field, dtype=np.int8).flatten()
+        green_field_array = np.array(self.green_field, dtype=np.int8).flatten()
+        orange_field_array = np.array(self.orange_field, dtype=np.int8).flatten()
+        purple_field_array = np.array(self.purple_field, dtype=np.int8).flatten()
         dice_array = np.array(list(self.dice.values()), dtype=np.int8)
-        obs = np.concatenate((yellow_field_array, blue_field_array, dice_array, [self.rounds]), axis=None)
+        obs = np.concatenate((yellow_field_array, blue_field_array, green_field_array, orange_field_array,
+                              purple_field_array, dice_array, [self.rounds], [self.extra_pick, self.re_roll],
+                              [self.orange_four, self.orange_five, self.orange_six, self.purple_six, self.yellow_cross,
+                               self.blue_cross, self.green_cross]), axis=None)
         return obs
 
     # returning current action mask
