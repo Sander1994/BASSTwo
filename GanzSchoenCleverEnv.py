@@ -73,13 +73,9 @@ class GanzSchonCleverEnv(gym.Env):
             col = action % 4
             if self.yellow_field[row][col] in self.dice.values() and self.yellow_field[row][col] != 0:
                 self.yellow_field[row][col] = 0
-                reward = self.check_rewards()
-            else:
-                self.rounds -= 1
-                reward -= 1
-                if self.rounds == 0:
-                    terminated = True
-                return self._get_obs(), reward, terminated, truncated, info
+            # invalid yellow actions
+            # else:
+            #     return self.process_invalid_action(reward)
 
         elif action < 28:
             action -= 15
@@ -89,28 +85,57 @@ class GanzSchonCleverEnv(gym.Env):
                     for col_index, element in enumerate(row):
                         if element == action:
                             self.blue_field[row_index][col_index] = 0
-                            reward = self.check_rewards()
-            else:
-                self.rounds -= 1
-                reward -= 1
-                if self.rounds == 0:
-                    terminated = True
-                return self._get_obs(), reward, terminated, truncated, info
+            # invalid blue actions
+            # else:
+            #     return self.process_invalid_action(reward)
 
         elif action < 39:
-            # green field action
+            action -= 28
+            # invalid green actions
+            # for i in range(11):
+            #     if action == i:
+            #         if any(field != 1 for field in self.green_field[:i]) or self.green_field[i] == 1:
+            #             return self.process_invalid_action(reward)
+            # if action == 0 and self.dice["green"] < 1:
+            #     return self.process_invalid_action(reward)
+            # if action == 1 and self.dice["green"] < 2:
+            #     return self.process_invalid_action(reward)
+            # if action == 2 and self.dice["green"] < 3:
+            #     return self.process_invalid_action(reward)
+            # if action == 3 and self.dice["green"] < 4:
+            #     return self.process_invalid_action(reward)
+            # if action == 4 and self.dice["green"] < 5:
+            #     return self.process_invalid_action(reward)
+            # if action == 5 and self.dice["green"] < 1:
+            #     return self.process_invalid_action(reward)
+            # if action == 6 and self.dice["green"] < 2:
+            #     return self.process_invalid_action(reward)
+            # if action == 7 and self.dice["green"] < 3:
+            #     return self.process_invalid_action(reward)
+            # if action == 8 and self.dice["green"] < 4:
+            #     return self.process_invalid_action(reward)
+            # if action == 9 and self.dice["green"] < 5:
+            #     return self.process_invalid_action(reward)
+            # if action == 10 and self.dice["green"] < 6:
+            #     return self.process_invalid_action(reward)
+            self.green_field[action] = 1
 
         elif action < 50:
-            # orange field action
+            action -= 39
+            self.orange_field[action] = self.dice["orange"]
 
         elif action < 61:
-            # purple field action
+            action -= 50
+            self.purple_field = self.dice["purple"]
 
         elif action < 62:
-            # extra pick action
+            self.rounds += 1
+            self.dice = self.last_dice
+            return self._get_obs(), reward, terminated, truncated, info
 
         elif action < 63:
-            # re roll aciton
+            self.dice = self.roll_dice()
+            return self._get_obs(), reward, terminated, truncated, info
 
         else:
             reward -= 1000
@@ -120,6 +145,7 @@ class GanzSchonCleverEnv(gym.Env):
         self.last_dice = self.dice
         self.dice = self.roll_dice()
         self.rounds -= 1
+        reward = self.check_rewards()
         self.score += reward
         if self.rounds == 0:
             terminated = True
@@ -212,6 +238,8 @@ class GanzSchonCleverEnv(gym.Env):
                 reward += self.blue_rewards["col"][i]
                 self.blue_reward_flags["col"][i] = True
 
+        # check for other colors
+
         return reward
 
     # returning current observations
@@ -287,4 +315,17 @@ class GanzSchonCleverEnv(gym.Env):
         if self.dice["blue"] + self.dice["white"] != 12:
             self.valid_action_mask_value[27] = 0
 
+        # masking for other fields
+
         return self.valid_action_mask_value
+
+    # calculations for invalid action
+    def process_invalid_action(self, reward):
+        terminated = False
+        truncated = False
+        info = {}
+        self.rounds -= 1
+        reward -= 1
+        if self.rounds == 0:
+            terminated = True
+        return self._get_obs(), reward, terminated, truncated, info
