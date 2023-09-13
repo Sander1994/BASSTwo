@@ -15,14 +15,16 @@ import torch.nn as nn
 def model_learn(n_envs=32, name="maskableppo_ganzschoenclever", net_arch=None, activation_fn=nn.ReLU, gamma=1,
                 learning_rate=0.0003*2, ent_coef=0.05, clip_range=0.2, verbose=1, n_steps=int(2048 / 32), n_epochs=5,
                 batch_size=int(2048 / 16), total_timesteps=1000000, prediction_ent_coef=0, prediction_gamma=1):
+    # initialize model
     envs = _init_envs(n_envs)
     policy_kwargs = dict(net_arch=net_arch, activation_fn=activation_fn)
     model = MaskablePPO(MaskableActorCriticPolicy, envs, gamma=gamma, learning_rate=learning_rate,
                         policy_kwargs=policy_kwargs,
                         ent_coef=ent_coef, clip_range=clip_range, verbose=verbose, n_steps=n_steps, n_epochs=n_epochs,
                         batch_size=batch_size)
-
+    # learning process
     model.learn(total_timesteps=total_timesteps)
+    # final settings and saving
     model.ent_coef = prediction_ent_coef
     model.gamma = prediction_gamma
     model.save(name)
@@ -30,10 +32,12 @@ def model_learn(n_envs=32, name="maskableppo_ganzschoenclever", net_arch=None, a
 
 # making predictions with the model
 def model_predict(n_steps=200, model_name="maskableppo_ganzschoenclever", n_envs=1, render=False):
+    # initializing the model
     model = MaskablePPO.load(model_name)
     envs, scores, score_history, fails, fail_history = \
         _init_envs(n_envs, n_envs, scores=True, fails=True)
     obs = envs.reset()
+    # making predictions and making entries for the graphs
     for i in range(n_steps):
         action_masks = get_action_masks(envs)
         action, _states = model.predict(obs, action_masks=action_masks)
@@ -42,9 +46,10 @@ def model_predict(n_steps=200, model_name="maskableppo_ganzschoenclever", n_envs
         make_fail_entries(rewards, fails, number_of_entries=n_envs)
         make_score_history_entry(dones, scores, score_history, number_of_entries=n_envs)
         make_fail_history_entry(dones, fails, fail_history, number_of_entries=n_envs)
+        # rendering one step
         if render is True:
             envs.render()
-
+    # plotting the graphs
     plot_history(score_history, "score")
     plot_history(fail_history, "fails")
 
@@ -98,24 +103,25 @@ def mask_fn(env_clever: gym.Env) -> np.ndarray:
 
 # initializing environments
 def _init_envs(n_envs=1, number_of_entries=None, scores=False, fails=False, render_mode="human"):
+    # initializing one environment
     def _init():
         env_make = GanzSchonCleverEnv(render_mode=render_mode)
         env_make = ActionMasker(env_make, mask_fn)
         return env_make
-
+    # initializing multiple environments
     envs_make = SubprocVecEnv([_init for _ in range(n_envs)])
+    # initializing values for plotting
     scores_make = None
     score_history_make = None
     fails_make = None
     fail_history_make = None
-
     if scores is True:
         scores_make = np.zeros(number_of_entries)
         score_history_make = [[] for _ in range(number_of_entries)]
     if fails is True:
         fails_make = np.zeros(number_of_entries)
         fail_history_make = [[] for _ in range(number_of_entries)]
-
+    # returning the right format based on the inputs
     if scores is False and fails is False:
         return envs_make
     elif scores is True and fails is False:
