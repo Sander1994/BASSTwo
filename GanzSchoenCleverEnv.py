@@ -18,6 +18,7 @@ class GanzSchonCleverEnv(gym.Env):
         self.rounds = rounds
         self.dice = self.roll_dice()
         self.last_dice = None
+        self.turn_is_extra_turn = False
         self.score = 0
         self.score_history = []
         # fields
@@ -25,59 +26,72 @@ class GanzSchonCleverEnv(gym.Env):
         self.yellow_rewards = {"row": [10, 14, 16, 20], "col": [10, 14, 16, 20], "dia": "extra_pick"}
         self.yellow_reward_flags = {"row": [False] * 4, "col": [False] * 4,
                                     "dia": False}
+        self.yellow_field_score = 0
         self.blue_field = [[0, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
         self.blue_rewards = {"row": ["orange_five", "yellow_cross", "fox"],
                              "col": ["re_roll", "green_cross", "purple_six", "extra_pick"]}
         self.blue_reward_flags = {"row": [False] * 3, "col": [False] * 4}
         self.blue_count_rewards = [0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         self.blue_count_reward_flags = [False] * 12
+        self.blue_field_score = 0
         self.green_field = [0] * 11
         self.green_rewards = [None, None, None, "extra_pick", None, "blue_cross", "fox", None, "purple_six", "re_roll",
                               None]
         self.green_count_rewards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
         self.green_reward_flags = [False] * 11
+        self.green_field_score = 0
         self.orange_field = [0] * 11
         self.orange_rewards = [None, None, "re_roll", None, "yellow_cross", "extra_pick", None, "fox", None,
                                "purple_six", None]
         self.orange_reward_flags = [False] * 11
+        self.orange_field_score = 0
         self.purple_field = [0] * 11
         self.purple_rewards = [None, None, "re_roll", "blue_cross", "extra_pick", "yellow_cross", "fox", "re_roll",
                                "green_cross", "orange_six", "extra_pick"]
         self.purple_reward_flags = [False] * 11
+        self.purple_field_score = 0
         # rewards
         self.extra_pick = 0
         self.re_roll = 0
         self.fox = 0
+        self.yellow_cross = 0
+        self.blue_cross = 0
+        self.green_cross = 0
         self.orange_four = 0
         self.orange_five = 0
         self.orange_six = 0
         self.purple_six = 0
-        self.yellow_cross = 0
-        self.blue_cross = 0
-        self.green_cross = 0
         # model values
         self.number_of_actions = 63
-        low_bound = np.array([0]*16 + [0]*12 + [0] * 11 + [0] * 11 + [0] * 11 + [1]*6 + [0] + [0] * 2 + [0] * 7)
-        high_bound = np.array([6]*16 + [6]*12 + [1] * 11 + [6] * 11 + [6] * 11 + [6]*6 + [10] + [6] * 2 + [1] * 7)
+        low_bound = np.array([0]*16 + [0]*12 + [0] * 11 + [0] * 11 + [0] * 11 + [1]*6 + [0] + [0] * 3 + [0] * 7)
+        high_bound = np.array([6]*16 + [6]*12 + [1] * 11 + [6] * 11 + [6] * 11 + [6]*6 + [10] + [6] * 3 + [1] * 7)
         self.action_space = spaces.Discrete(self.number_of_actions)
-        self.observation_space = spaces.Box(low_bound, high_bound, shape=(77,), dtype=np.int8)
+        self.observation_space = spaces.Box(low_bound, high_bound, shape=(78,), dtype=np.int8)
         self.valid_action_mask_value = np.ones(self.number_of_actions)
         self.valid_action_mask_value = self.valid_action_mask()
 
     # executing actions and returning observations
     def step(self, action):
+        # initializing values
         reward = 0
         terminated = False
         truncated = False
         info = {}
+        self.turn_is_extra_turn = False
         # yellow field actions
         if action < 16:
+            if self.yellow_cross >= 1:
+                self.turn_is_extra_turn = True
+                self.yellow_cross -= 1
             row = action // 4
             col = action % 4
             self.yellow_field[row][col] = 0
         # blue field actions
         elif action < 28:
             action -= 15
+            if self.blue_cross >= 1:
+                self.turn_is_extra_turn = True
+                self.blue_cross -= 1
             for row_index, row in enumerate(self.blue_field):
                 for col_index, element in enumerate(row):
                     if element == action:
@@ -85,23 +99,48 @@ class GanzSchonCleverEnv(gym.Env):
         # green field actions
         elif action < 39:
             action -= 28
+            if self.green_cross >= 1:
+                self.turn_is_extra_turn = True
+                self.green_cross -= 1
             self.green_field[action] = 1
         # orange field actions
         elif action < 50:
             action -= 39
-            self.orange_field[action] = self.dice["orange"]
+            if self.orange_four >= 1:
+                self.turn_is_extra_turn = True
+                self.orange_field[action] = 4
+                self.orange_four -= 1
+            elif self.orange_five >= 1:
+                self.turn_is_extra_turn = True
+                self.orange_field[action] = 5
+                self.orange_five -= 1
+            elif self.orange_six >= 1:
+                self.turn_is_extra_turn = True
+                self.orange_field[action] = 6
+                self.orange_six -= 1
+            else:
+                self.orange_field[action] = self.dice["orange"]
         # purple field actions
         elif action < 61:
             action -= 50
-            self.purple_field = self.dice["purple"]
+            if self.purple_six >= 1:
+                self.turn_is_extra_turn = True
+                self.purple_field[action] = 6
+                self.purple_six -= 1
+            else:
+                self.purple_field[action] = self.dice["purple"]
         # extra_pick action
         elif action < 62:
             self.rounds += 1
+            self.extra_pick -= 1
             self.dice = self.last_dice
+            self.valid_action_mask_value = self.valid_action_mask()
             return self._get_obs(), reward, terminated, truncated, info
         # re_roll action
         elif action < 63:
             self.dice = self.roll_dice()
+            self.re_roll -= 1
+            self.valid_action_mask_value = self.valid_action_mask()
             return self._get_obs(), reward, terminated, truncated, info
         # wrong actions
         else:
@@ -109,13 +148,16 @@ class GanzSchonCleverEnv(gym.Env):
             terminated = True
             return self._get_obs(), reward, terminated, truncated, info
         # attribute updates
-        self.last_dice = self.dice
-        self.dice = self.roll_dice()
-        self.rounds -= 1
+        if not self.turn_is_extra_turn:
+            self.last_dice = self.dice
+            self.dice = self.roll_dice()
+            self.rounds -= 1
+            if self.rounds == 0:
+                terminated = True
+                reward += self.fox * min(self.yellow_field_score, self.blue_field_score, self.green_field_score,
+                                         self.orange_field_score, self.purple_field_score)
         reward = self.check_rewards()
         self.score += reward
-        if self.rounds == 0:
-            terminated = True
         self.valid_action_mask_value = self.valid_action_mask()
         info = {}
 
@@ -135,6 +177,7 @@ class GanzSchonCleverEnv(gym.Env):
         self.orange_reward_flags = [False] * 11
         self.purple_field = [0] * 11
         self.purple_reward_flags = [False] * 11
+        self.turn_is_extra_turn = False
         self.extra_pick = 0
         self.re_roll = 0
         self.fox = 0
@@ -178,19 +221,18 @@ class GanzSchonCleverEnv(gym.Env):
     def check_rewards(self):
         reward = 0
         blue_field_count = 0
-
         # yellow field rewards
         for i in range(4):
-            if all(self.yellow_field[i][j] == 0 for j in range(4)) and not self.yellow_reward_flags['row'][i]:
+            if all(self.yellow_field[i][j] == 0 for j in range(4)) and not self.yellow_reward_flags["row"][i]:
                 self.add_reward(self.yellow_rewards["row"][i])
-                self.yellow_reward_flags['row'][i] = True
-            if all(self.yellow_field[j][i] == 0 for j in range(4)) and not self.yellow_reward_flags['col'][i]:
-                reward += self.yellow_rewards['col'][i]
+                self.yellow_reward_flags["row"][i] = True
+            if all(self.yellow_field[j][i] == 0 for j in range(4)) and not self.yellow_reward_flags["col"][i]:
+                reward += self.yellow_rewards["col"][i]
+                self.yellow_field_score += self.yellow_rewards["col"][i]
                 self.yellow_reward_flags['col'][i] = True
         if all(self.yellow_field[i][i] == 0 for i in range(4)) and not self.yellow_reward_flags["dia"]:
             self.add_reward(self.yellow_reward_flags["dia"])
             self.yellow_reward_flags["dia"] = True
-
         # blue field rewards
         for row in self.blue_field:
             for element in row:
@@ -198,6 +240,7 @@ class GanzSchonCleverEnv(gym.Env):
                     blue_field_count += 1
         if not self.blue_count_reward_flags[blue_field_count - 1]:
             reward += self.blue_count_rewards[blue_field_count - 1]
+            self.blue_field_score += self.blue_count_rewards[blue_field_count - 1]
             self.blue_count_reward_flags[blue_field_count-1] = True
         for i in range(len(self.blue_field)):
             if all(element == 0 for element in self.blue_field[i]) and not self.blue_reward_flags["row"][i]:
@@ -207,29 +250,31 @@ class GanzSchonCleverEnv(gym.Env):
             if all(row[i] == 0 for row in self.blue_field) and not self.blue_reward_flags["col"][i]:
                 self.add_reward(self.blue_rewards["col"][i])
                 self.blue_reward_flags["col"][i] = True
-
         # green field rewards
         for i in range(11):
             if self.green_field[i] == 1 and self.green_reward_flags[i] is False:
                 reward += self.green_count_rewards[i]
+                self.green_field_score += self.green_count_rewards[i]
                 self.add_reward(self.green_rewards[i])
                 self.green_reward_flags[i] = True
-
         # orange field rewards
         for i in range(11):
             if self.orange_field[i] > 0 and self.orange_reward_flags[i] is False:
                 reward += self.orange_field[i]
+                self.orange_field_score += self.orange_field[i]
                 self.add_reward(self.orange_rewards[i])
                 self.orange_reward_flags[i] = True
                 if i == 3 or 6 or 8:
                     reward += self.orange_field[i]
+                    self.orange_field_score += self.orange_field[i]
                 if i == 10:
                     reward += self.orange_field[i] * 2
-
+                    self.orange_field_score += self.orange_field[i] * 2
         # purple field rewards
         for i in range(11):
             if self.purple_field[i] > 0 and self.purple_reward_flags[i] is False:
                 reward += self.purple_field[i]
+                self.purple_field_score += self.purple_field[i]
                 self.add_reward(self.purple_rewards[i])
                 self.purple_reward_flags[i] = True
 
@@ -246,7 +291,7 @@ class GanzSchonCleverEnv(gym.Env):
         dice_array = np.array(list(self.dice.values()), dtype=np.int8)
         # concatenating all values to an observation space
         obs = np.concatenate((yellow_field_array, blue_field_array, green_field_array, orange_field_array,
-                              purple_field_array, dice_array, [self.rounds], [self.extra_pick, self.re_roll],
+                              purple_field_array, dice_array, [self.rounds], [self.extra_pick, self.re_roll, self.fox],
                               [self.orange_four, self.orange_five, self.orange_six, self.purple_six, self.yellow_cross,
                                self.blue_cross, self.green_cross]), axis=None)
         return obs
@@ -254,7 +299,6 @@ class GanzSchonCleverEnv(gym.Env):
     # returning current action mask
     def valid_action_mask(self) -> np.ndarray:
         self.valid_action_mask_value[:] = 1
-
         # mask for yellow field actions
         for i in range(16):
             row = i % 4
@@ -279,7 +323,6 @@ class GanzSchonCleverEnv(gym.Env):
         if 6 not in self.dice.values():
             self.valid_action_mask_value[1] = 0
             self.valid_action_mask_value[15] = 0
-
         # mask for blue field actions
         m = 16
         for row in self.blue_field:
@@ -309,8 +352,94 @@ class GanzSchonCleverEnv(gym.Env):
             self.valid_action_mask_value[26] = 0
         if self.dice["blue"] + self.dice["white"] != 12:
             self.valid_action_mask_value[27] = 0
-
-        # masking for other fields
+        # mask for green field actions
+        m = 0
+        self.valid_action_mask_value[28:28 + 11] = 0
+        for i in range(len(self.green_field)):
+            if self.green_field[i] == 0:
+                break
+            m += 1
+        if m < 11:
+            self.valid_action_mask_value[28 + m] = 1
+        if self.dice["green"] == 5:
+            self.valid_action_mask_value[28 + 10] = 0
+        if self.dice["green"] == 4:
+            self.valid_action_mask_value[28 + 9] = 0
+            self.valid_action_mask_value[28 + 4] = 0
+        if self.dice["green"] == 3:
+            self.valid_action_mask_value[28 + 8] = 0
+            self.valid_action_mask_value[28 + 3] = 0
+        if self.dice["green"] == 2:
+            self.valid_action_mask_value[28 + 7] = 0
+            self.valid_action_mask_value[28 + 2] = 0
+        if self.dice["green"] == 2:
+            self.valid_action_mask_value[28 + 6] = 0
+            self.valid_action_mask_value[28 + 1] = 0
+        # mask for orange field actions
+        m = 0
+        self.valid_action_mask_value[39:39 + 11] = 0
+        for i in range(len(self.orange_field)):
+            if self.orange_field[i] == 0:
+                break
+            m += 1
+        if m < 11:
+            self.valid_action_mask_value[39 + m] = 1
+        # mask for purple field actions
+        m = 0
+        self.valid_action_mask_value[50:50 + 11] = 0
+        for i in range(len(self.orange_field)):
+            if self.orange_field[i] == 0:
+                break
+            m += 1
+        if m < 11 and self.valid_action_mask_value[50 + m - 1] < self.dice["purple"] \
+                or self.valid_action_mask_value[50 + m - 1] == 6:
+            self.valid_action_mask_value[50 + m] = 1
+        # mask for rewards
+        if self.yellow_cross > 0 or self.blue_cross > 0 or self.green_cross > 0 or self.orange_four > 0 or \
+                self.orange_five > 0 or self.orange_six > 0 or self.purple_six > 0:
+            self.valid_action_mask_value[:] = 0
+        # mask for yellow cross action
+        if self.yellow_cross > 0:
+            for i in range(16):
+                row = i // 4
+                col = i % 4
+                if self.yellow_field[row][col] > 0:
+                    self.valid_action_mask_value[i] = 1
+        # mask for blue cross action
+        elif self.blue_cross > 0:
+            for i in range(12):
+                row = i // 3
+                col = i % 4
+                if self.blue_field[row][col] > 0:
+                    self.valid_action_mask_value[16 + i] = 1
+        # mask for green cross action
+        elif self.green_cross > 0:
+            m = 0
+            for i in range(len(self.green_field)):
+                if self.green_field[i] == 0:
+                    break
+                m += 1
+            if m < 11:
+                self.valid_action_mask_value[28 + m] = 1
+        # mask for orange four/five/six action
+        elif self.orange_four > 0 or self.orange_five > 0 or self.orange_six > 0:
+            m = 0
+            for i in range(len(self.orange_field)):
+                if self.orange_field[i] == 0:
+                    break
+                m += 1
+            if m < 11:
+                self.valid_action_mask_value[39 + m] = 1
+        # mask for purple six action
+        elif self.purple_six > 0:
+            m = 0
+            self.valid_action_mask_value[50:50 + 11] = 0
+            for i in range(len(self.orange_field)):
+                if self.orange_field[i] == 0:
+                    break
+                m += 1
+            if m < 11:
+                self.valid_action_mask_value[50 + m] = 1
 
         return self.valid_action_mask_value
 
