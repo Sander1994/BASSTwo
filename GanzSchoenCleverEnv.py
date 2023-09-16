@@ -386,8 +386,8 @@ class GanzSchonCleverEnv(gym.Env):
         # mask for purple field actions
         m = 0
         self.valid_action_mask_value[50:50 + 11] = 0
-        for i in range(len(self.orange_field)):
-            if self.orange_field[i] == 0:
+        for i in range(len(self.purple_field)):
+            if self.purple_field[i] == 0:
                 break
             m += 1
         if m < 11 and self.valid_action_mask_value[50 + m - 1] < self.dice["purple"] \
@@ -432,9 +432,8 @@ class GanzSchonCleverEnv(gym.Env):
         # mask for purple six action
         elif self.purple_six > 0:
             m = 0
-            self.valid_action_mask_value[50:50 + 11] = 0
-            for i in range(len(self.orange_field)):
-                if self.orange_field[i] == 0:
+            for i in range(len(self.purple_field)):
+                if self.purple_field[i] == 0:
                     break
                 m += 1
             if m < 11:
