@@ -24,8 +24,7 @@ class GanzSchonCleverEnv(gym.Env):
         # fields
         self.yellow_field = [[3, 6, 5, 0], [2, 1, 0, 5], [1, 0, 2, 4], [0, 3, 4, 6]]
         self.yellow_rewards = {"row": [10, 14, 16, 20], "col": [10, 14, 16, 20], "dia": "extra_pick"}
-        self.yellow_reward_flags = {"row": [False] * 4, "col": [False] * 4,
-                                    "dia": False}
+        self.yellow_reward_flags = {"row": [False] * 4, "col": [False] * 4, "dia": False}
         self.yellow_field_score = 0
         self.blue_field = [[0, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
         self.blue_rewards = {"row": ["orange_five", "yellow_cross", "fox"],
@@ -167,7 +166,7 @@ class GanzSchonCleverEnv(gym.Env):
     def reset(self, seed=None, **kwargs):
         self.score_history.append(self.score)
         self.yellow_field = [[3, 6, 5, 0], [2, 1, 0, 5], [1, 0, 2, 4], [0, 3, 4, 6]]
-        self.yellow_reward_flags = {'row': [False] * 4, 'col': [False] * 4}
+        self.yellow_reward_flags = {"row": [False] * 4, "col": [False] * 4, "dia": False}
         self.blue_field = [[0, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
         self.blue_reward_flags = {"row": [False] * 3, "col": [False] * 4}
         self.blue_count_reward_flags = [False] * 12
@@ -231,7 +230,7 @@ class GanzSchonCleverEnv(gym.Env):
                 self.yellow_field_score += self.yellow_rewards["col"][i]
                 self.yellow_reward_flags['col'][i] = True
         if all(self.yellow_field[i][i] == 0 for i in range(4)) and not self.yellow_reward_flags["dia"]:
-            self.add_reward(self.yellow_reward_flags["dia"])
+            self.add_reward(self.yellow_rewards["dia"])
             self.yellow_reward_flags["dia"] = True
         # blue field rewards
         for row in self.blue_field:
@@ -408,7 +407,7 @@ class GanzSchonCleverEnv(gym.Env):
         # mask for blue cross action
         elif self.blue_cross > 0:
             for i in range(12):
-                row = i // 3
+                row = i // 4
                 col = i % 4
                 if self.blue_field[row][col] > 0:
                     self.valid_action_mask_value[16 + i] = 1
@@ -440,6 +439,12 @@ class GanzSchonCleverEnv(gym.Env):
                 m += 1
             if m < 11:
                 self.valid_action_mask_value[50 + m] = 1
+        # mask for extra_pick action
+        if self.extra_pick <= 0:
+            self.valid_action_mask_value[61] = 0
+        # mask for re_roll action
+        if self.re_roll <= 0:
+            self.valid_action_mask_value[62] = 0
 
         return self.valid_action_mask_value
 
