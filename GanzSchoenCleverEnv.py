@@ -21,6 +21,7 @@ class GanzSchonCleverEnv(gym.Env):
         self.turn_is_extra_turn = False
         self.score = 0
         self.score_history = []
+        self.initialized = False
         # fields
         self.yellow_field = [[3, 6, 5, 0], [2, 1, 0, 5], [1, 0, 2, 4], [0, 3, 4, 6]]
         self.yellow_rewards = {"row": ["blue_cross", "orange_four", "green_cross", "fox"], "col": [10, 14, 16, 20],
@@ -166,7 +167,8 @@ class GanzSchonCleverEnv(gym.Env):
 
     # resetting the environment
     def reset(self, seed=None, **kwargs):
-        self.score_history.append(self.score)
+        if self.initialized is True:
+            self.score_history.append(self.score)
         self.yellow_field = [[3, 6, 5, 0], [2, 1, 0, 5], [1, 0, 2, 4], [0, 3, 4, 6]]
         self.yellow_reward_flags = {"row": [False] * 4, "col": [False] * 4, "dia": False}
         self.yellow_field_score = 0
@@ -199,6 +201,8 @@ class GanzSchonCleverEnv(gym.Env):
         self.dice = self.roll_dice()
         self.valid_action_mask_value = self.valid_action_mask()
         info = {}
+        if self.initialized is False:
+            self.initialized = True
 
         return self._get_obs(), info
 
