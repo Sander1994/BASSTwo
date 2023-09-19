@@ -30,8 +30,8 @@ class GanzSchonCleverEnv(gym.Env):
         self.blue_rewards = {"row": ["orange_five", "yellow_cross", "fox"],
                              "col": ["re_roll", "green_cross", "purple_six", "extra_pick"]}
         self.blue_reward_flags = {"row": [False] * 3, "col": [False] * 4}
-        self.blue_count_rewards = [1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        self.blue_count_reward_flags = [False] * 11
+        self.blue_count_rewards = [0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        self.blue_count_reward_flags = [False] * 12
         self.blue_field_score = 0
         self.green_field = [0] * 11
         self.green_rewards = [None, None, None, "extra_pick", None, "blue_cross", "fox", None, "purple_six", "re_roll",
@@ -275,7 +275,7 @@ class GanzSchonCleverEnv(gym.Env):
                 self.orange_field_score += self.orange_field[i]
                 self.add_reward(self.orange_rewards[i])
                 self.orange_reward_flags[i] = True
-                if i == 3 or 6 or 8:
+                if i in [3, 6, 8]:
                     reward += self.orange_field[i]
                     self.orange_field_score += self.orange_field[i]
                 if i == 10:
