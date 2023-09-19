@@ -218,6 +218,8 @@ class GanzSchonCleverEnv(gym.Env):
             print(f'Action Mask: {self.valid_action_mask_value}')
             print(f'Score: {self.score}')
             print(f'Score History: {self.score_history}')
+            if self.score_history:
+                print(f'Average Score: {sum(self.score_history) / len(self.score_history)}')
         elif self.render_mode == 'rgb_array':
             raise NotImplementedError('rgb_array mode is not supported')
         else:
