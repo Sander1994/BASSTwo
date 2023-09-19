@@ -23,7 +23,8 @@ class GanzSchonCleverEnv(gym.Env):
         self.score_history = []
         # fields
         self.yellow_field = [[3, 6, 5, 0], [2, 1, 0, 5], [1, 0, 2, 4], [0, 3, 4, 6]]
-        self.yellow_rewards = {"row": [10, 14, 16, 20], "col": [10, 14, 16, 20], "dia": "extra_pick"}
+        self.yellow_rewards = {"row": ["blue_cross", "orange_four", "green_cross", "fox"], "col": [10, 14, 16, 20],
+                               "dia": "extra_pick"}
         self.yellow_reward_flags = {"row": [False] * 4, "col": [False] * 4, "dia": False}
         self.yellow_field_score = 0
         self.blue_field = [[0, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
@@ -154,14 +155,10 @@ class GanzSchonCleverEnv(gym.Env):
             # attribute updates for a finished game
             if self.rounds == 0:
                 terminated = True
-                reward = self.check_rewards()
                 reward += self.fox * min(self.yellow_field_score, self.blue_field_score, self.green_field_score,
                                          self.orange_field_score, self.purple_field_score)
-                self.score += reward
-                self.score_history.append(self.score)
-        if self.rounds != 0:
-            reward = self.check_rewards()
-            self.score += reward
+        reward += self.check_rewards()
+        self.score += reward
         self.valid_action_mask_value = self.valid_action_mask()
         info = {}
 
