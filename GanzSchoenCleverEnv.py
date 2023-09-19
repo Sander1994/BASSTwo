@@ -62,6 +62,11 @@ class GanzSchonCleverEnv(gym.Env):
         self.orange_five = 0
         self.orange_six = 0
         self.purple_six = 0
+        self.picked_yellow = 0
+        self.picked_blue = 0
+        self.picked_green = 0
+        self.picked_orange = 0
+        self.picked_purple = 0
         # model values
         self.number_of_actions = 63
         low_bound = np.array([0]*16 + [0]*12 + [0] * 11 + [0] * 11 + [0] * 11 + [1]*6 + [0] + [0] * 3 + [0] * 7)
@@ -81,6 +86,7 @@ class GanzSchonCleverEnv(gym.Env):
         self.turn_is_extra_turn = False
         # yellow field actions
         if action < 16:
+            self.picked_yellow += 1
             if self.yellow_cross >= 1:
                 self.turn_is_extra_turn = True
                 self.yellow_cross -= 1
@@ -89,6 +95,7 @@ class GanzSchonCleverEnv(gym.Env):
             self.yellow_field[row][col] = 0
         # blue field actions
         elif action < 28:
+            self.picked_blue += 1
             action -= 15
             if self.blue_cross >= 1:
                 self.turn_is_extra_turn = True
@@ -99,6 +106,7 @@ class GanzSchonCleverEnv(gym.Env):
                         self.blue_field[row_index][col_index] = 0
         # green field actions
         elif action < 39:
+            self.picked_green += 1
             action -= 28
             if self.green_cross >= 1:
                 self.turn_is_extra_turn = True
@@ -106,6 +114,7 @@ class GanzSchonCleverEnv(gym.Env):
             self.green_field[action] = 1
         # orange field actions
         elif action < 50:
+            self.picked_orange += 1
             action -= 39
             if self.orange_four >= 1:
                 self.turn_is_extra_turn = True
@@ -123,6 +132,7 @@ class GanzSchonCleverEnv(gym.Env):
                 self.orange_field[action] = self.dice["orange"]
         # purple field actions
         elif action < 61:
+            self.picked_purple += 1
             action -= 50
             if self.purple_six >= 1:
                 self.turn_is_extra_turn = True
@@ -219,7 +229,10 @@ class GanzSchonCleverEnv(gym.Env):
             print(f'Score: {self.score}')
             print(f'Score History: {self.score_history}')
             if self.score_history:
+                print(f'Max Score: {max(self.score_history)}')
                 print(f'Average Score: {sum(self.score_history) / len(self.score_history)}')
+            print(f'Picked Colors: Yellow: {self.picked_yellow}, Blue: {self.picked_blue}, Green: {self.picked_green}, '
+                  f'Orange: {self.picked_orange}, Purple: {self.picked_purple}')
         elif self.render_mode == 'rgb_array':
             raise NotImplementedError('rgb_array mode is not supported')
         else:
