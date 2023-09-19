@@ -2,8 +2,8 @@ from Modell import *
 
 
 def main():
-    model_learn(net_arch=[512, 512, 512, 512], total_timesteps=1000000)
-    model_predict(n_envs=1, render=True, n_steps=400)
+    model_learn(net_arch=[512, 512, 512, 512], total_timesteps=100000)
+    model_predict(n_envs=1, render=True, n_steps=200)
 
 
 if __name__ == "__main__":

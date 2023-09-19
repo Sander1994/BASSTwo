@@ -30,8 +30,8 @@ class GanzSchonCleverEnv(gym.Env):
         self.blue_rewards = {"row": ["orange_five", "yellow_cross", "fox"],
                              "col": ["re_roll", "green_cross", "purple_six", "extra_pick"]}
         self.blue_reward_flags = {"row": [False] * 3, "col": [False] * 4}
-        self.blue_count_rewards = [0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        self.blue_count_reward_flags = [False] * 12
+        self.blue_count_rewards = [1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        self.blue_count_reward_flags = [False] * 11
         self.blue_field_score = 0
         self.green_field = [0] * 11
         self.green_rewards = [None, None, None, "extra_pick", None, "blue_cross", "fox", None, "purple_six", "re_roll",
@@ -151,12 +151,17 @@ class GanzSchonCleverEnv(gym.Env):
             self.last_dice = self.dice
             self.dice = self.roll_dice()
             self.rounds -= 1
+            # attribute updates for a finished game
             if self.rounds == 0:
                 terminated = True
+                reward = self.check_rewards()
                 reward += self.fox * min(self.yellow_field_score, self.blue_field_score, self.green_field_score,
                                          self.orange_field_score, self.purple_field_score)
-        reward = self.check_rewards()
-        self.score += reward
+                self.score += reward
+                self.score_history.append(self.score)
+        if self.rounds != 0:
+            reward = self.check_rewards()
+            self.score += reward
         self.valid_action_mask_value = self.valid_action_mask()
         info = {}
 
@@ -167,26 +172,31 @@ class GanzSchonCleverEnv(gym.Env):
         self.score_history.append(self.score)
         self.yellow_field = [[3, 6, 5, 0], [2, 1, 0, 5], [1, 0, 2, 4], [0, 3, 4, 6]]
         self.yellow_reward_flags = {"row": [False] * 4, "col": [False] * 4, "dia": False}
+        self.yellow_field_score = 0
         self.blue_field = [[0, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
         self.blue_reward_flags = {"row": [False] * 3, "col": [False] * 4}
         self.blue_count_reward_flags = [False] * 12
+        self.blue_field_score = 0
         self.green_field = [0] * 11
         self.green_reward_flags = [False] * 11
+        self.green_field_score = 0
         self.orange_field = [0] * 11
         self.orange_reward_flags = [False] * 11
+        self.orange_field_score = 0
         self.purple_field = [0] * 11
         self.purple_reward_flags = [False] * 11
+        self.purple_field_score = 0
         self.turn_is_extra_turn = False
         self.extra_pick = 0
         self.re_roll = 0
         self.fox = 0
+        self.yellow_cross = 0
+        self.blue_cross = 0
+        self.green_cross = 0
         self.orange_four = 0
         self.orange_five = 0
         self.orange_six = 0
         self.purple_six = 0
-        self.yellow_cross = 0
-        self.blue_cross = 0
-        self.green_cross = 0
         self.score = 0
         self.rounds = self.initial_rounds
         self.dice = self.roll_dice()
@@ -204,7 +214,9 @@ class GanzSchonCleverEnv(gym.Env):
             print(f'Orange Field: {self.orange_field}')
             print(f'Purple Field: {self.purple_field}')
             print(f'Dice: {self.dice}')
+            print(f'Action Mask: {self.valid_action_mask_value}')
             print(f'Score: {self.score}')
+            print(f'Score History: {self.score_history}')
         elif self.render_mode == 'rgb_array':
             raise NotImplementedError('rgb_array mode is not supported')
         else:
@@ -245,7 +257,7 @@ class GanzSchonCleverEnv(gym.Env):
             if all(element == 0 for element in self.blue_field[i]) and not self.blue_reward_flags["row"][i]:
                 self.add_reward(self.blue_rewards["row"][i])
                 self.blue_reward_flags["row"][i] = True
-        for i in range(max(len(row) for row in self.blue_field)):
+        for i in range(4):
             if all(row[i] == 0 for row in self.blue_field) and not self.blue_reward_flags["col"][i]:
                 self.add_reward(self.blue_rewards["col"][i])
                 self.blue_reward_flags["col"][i] = True
