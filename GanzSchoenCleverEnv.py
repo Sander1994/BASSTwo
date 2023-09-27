@@ -21,7 +21,8 @@ class GanzSchonCleverEnv(gym.Env):
         self.invalid_dice = {"white": False, "yellow": False, "blue": False, "green": False, "orange": False,
                              "purple": False}
         self.extra_pick_dice = None
-        self.can_pick_extra = False
+        self.can_pick_extra_self = False
+        self.can_pick_extra_other = False
         self.turn_is_extra_turn = False
         self.score = 0
         self.score_history = []
@@ -73,7 +74,7 @@ class GanzSchonCleverEnv(gym.Env):
         self.picked_orange = 0
         self.picked_purple = 0
         # model values
-        self.number_of_actions = 63
+        self.number_of_actions = 245
         low_bound = np.array([0]*16 + [0]*12 + [0] * 11 + [0] * 11 + [0] * 11 + [1]*6 + [0] + [1] + [0] * 3 + [0] * 7)
         high_bound = np.array([6]*16 + [6]*12 + [1] * 11 + [6] * 11 + [6] * 11 + [6]*6 + [6] + [3] + [6] * 3 + [1] * 7)
         self.action_space = spaces.Discrete(self.number_of_actions)
@@ -212,6 +213,7 @@ class GanzSchonCleverEnv(gym.Env):
                 row = action // 4
                 col = action % 4
                 self.yellow_field[row][col] = 0
+                self.invalid_dice["yellow"] = True
             # blue field actions
             elif action < 150:
                 self.picked_blue += 1
@@ -220,21 +222,25 @@ class GanzSchonCleverEnv(gym.Env):
                     for col_index, element in enumerate(row):
                         if element == action:
                             self.blue_field[row_index][col_index] = 0
+                self.invalid_dice["blue"] = True
             # green field actions
             elif action < 161:
                 self.picked_green += 1
                 action -= 150
                 self.green_field[action] = 1
+                self.invalid_dice["green"] = True
             # orange field actions
             elif action < 172:
                 self.picked_orange += 1
                 action -= 161
                 self.orange_field[action] = self.dice["orange"]
+                self.invalid_dice["orange"] = True
             # purple field actions
             elif action < 183:
                 self.picked_purple += 1
                 action -= 172
                 self.purple_field[action] = self.dice["purple"]
+                self.invalid_dice["purple"] = True
             # white dice actions
             elif action < 244:
                 # yellow
@@ -267,6 +273,7 @@ class GanzSchonCleverEnv(gym.Env):
                     self.picked_purple += 1
                     action -= 231
                     self.purple_field[action] = self.dice["white"]
+                self.invalid_dice["white"] = True
         # re_roll action
         elif action < 245:
             self.roll_dice()
@@ -275,6 +282,14 @@ class GanzSchonCleverEnv(gym.Env):
             return self._get_obs(), reward, terminated, truncated, info
         # do nothing instead of extra_pick
         elif action < 246:
+            if self.can_pick_extra_self:
+                self.can_pick_extra_self = False
+                self.can_pick_extra_other = True
+                self.extra_pick_dice = self.dice
+                self.invalid_dice = {color: False for color in self.invalid_dice}
+            if self.can_pick_extra_other:
+                self.can_pick_extra_other = False
+                self.invalid_dice = {color: False for color in self.invalid_dice}
             return self._get_obs(), reward, terminated, truncated, info
         # wrong actions
         else:
@@ -662,10 +677,33 @@ class GanzSchonCleverEnv(gym.Env):
         if self.invalid_dice["white"] is True:
             self.valid_action_mask_value[61:61 + 61] = 0
         # mask for extra_pick action
-        if self.extra_pick <= 0:
+        if self.extra_pick <= 0 or not self.can_pick_extra_self or not self.can_pick_extra_other:
             self.valid_action_mask_value[122:122 + 122] = 0
+            self.valid_action_mask_value[245] = 0
+        if self.extra_pick >= 1 and self.can_pick_extra_self or self.extra_pick >= 1 and self.can_pick_extra_other:
+            self.valid_action_mask_value[:] = 0
+            self.valid_action_mask_value[122:122 + 122] = 1
+            self.valid_action_mask_value[245] = 1
+            # yellow
+            if self.invalid_dice["yellow"] is False:
+
+            # blue
+            if self.invalid_dice["blue"] is False:
+
+            # green
+            if self.invalid_dice["green"] is False:
+
+            # orange
+            if self.invalid_dice["orange"] is False:
+
+            # purple
+            if self.invalid_dice["purple"] is False:
+
+            # white
+            if self.invalid_dice["white"] is False:
+
         # mask for re_roll action
-        if self.re_roll <= 0:
+        if self.re_roll <= 0 or self.can_pick_extra_self or self.can_pick_extra_other:
             self.valid_action_mask_value[244] = 0
 
         return self.valid_action_mask_value
@@ -695,4 +733,5 @@ class GanzSchonCleverEnv(gym.Env):
             self.roll_in_round = 1
             self.extra_pick_dice = self.dice
             self.invalid_dice = {color: False for color in self.invalid_dice}
-            self.can_pick_extra = True
+            self.can_pick_extra_self = True
+            self.roll_dice()
