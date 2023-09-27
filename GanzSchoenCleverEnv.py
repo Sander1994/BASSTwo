@@ -17,7 +17,7 @@ class GanzSchonCleverEnv(gym.Env):
         self.initial_rounds = rounds
         self.rounds = rounds
         self.roll_in_round = 1
-        self.dice = self.roll_dice()
+        self.dice = None
         self.invalid_dice = {"white": False, "yellow": False, "blue": False, "green": False, "orange": False,
                              "purple": False}
         self.extra_pick_dice = None
@@ -204,6 +204,7 @@ class GanzSchonCleverEnv(gym.Env):
         # extra_pick action
         elif action < 244:
             self.extra_pick -= 1
+            self.turn_is_extra_turn = True
             # yellow field actions
             if action < 138:
                 self.picked_yellow += 1
@@ -268,9 +269,12 @@ class GanzSchonCleverEnv(gym.Env):
                     self.purple_field[action] = self.dice["white"]
         # re_roll action
         elif action < 245:
-            self.dice = self.roll_dice()
+            self.roll_dice()
             self.re_roll -= 1
             self.valid_action_mask_value = self.valid_action_mask()
+            return self._get_obs(), reward, terminated, truncated, info
+        # do nothing instead of extra_pick
+        elif action < 246:
             return self._get_obs(), reward, terminated, truncated, info
         # wrong actions
         else:
@@ -279,7 +283,7 @@ class GanzSchonCleverEnv(gym.Env):
             return self._get_obs(), reward, terminated, truncated, info
         # attribute updates
         if not self.turn_is_extra_turn:
-            self.dice = self.roll_dice()
+            self.roll_dice()
             self.increment_rounds()
             # attribute updates for a finished game
             if self.rounds == 0:
@@ -328,7 +332,7 @@ class GanzSchonCleverEnv(gym.Env):
         self.score = 0
         self.rounds = self.initial_rounds
         self.roll_in_round = 1
-        self.dice = self.roll_dice()
+        self.roll_dice()
         self.valid_action_mask_value = self.valid_action_mask()
         info = {}
         if self.initialized is False:
@@ -359,10 +363,11 @@ class GanzSchonCleverEnv(gym.Env):
             raise ValueError(f'Render mode {self.render_mode} is not supported')
 
     # rolling the dice
-    @staticmethod
-    def roll_dice():
+    def roll_dice(self):
         colors = ["white", "yellow", "blue", "green", "orange", "purple"]
-        return {color: random.randint(1, 6) for color in colors}
+        for color in colors:
+            if not self.invalid_dice[color]:
+                self.dice[color] = random.randint(1, 6)
 
     # checking the rewards for the current step
     def check_rewards(self):
@@ -688,6 +693,6 @@ class GanzSchonCleverEnv(gym.Env):
         else:
             self.rounds -= 1
             self.roll_in_round = 1
-            self.extra_pick_dice = self.invalid_dice
+            self.extra_pick_dice = self.dice
             self.invalid_dice = {color: False for color in self.invalid_dice}
             self.can_pick_extra = True
