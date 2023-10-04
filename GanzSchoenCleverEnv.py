@@ -334,6 +334,12 @@ class GanzSchonCleverEnv(gym.Env):
         self.purple_reward_flags = [False] * 11
         self.purple_field_score = 0
         self.turn_is_extra_turn = False
+        self.roll_in_round = 1
+        self.invalid_dice = {"white": False, "yellow": False, "blue": False, "green": False, "orange": False,
+                             "purple": False}
+        self.extra_pick_dice = None
+        self.can_pick_extra_self = False
+        self.can_pick_extra_other = False
         self.extra_pick = 0
         self.re_roll = 0
         self.fox = 0
@@ -684,24 +690,26 @@ class GanzSchonCleverEnv(gym.Env):
             self.valid_action_mask_value[:] = 0
             self.valid_action_mask_value[122:122 + 122] = 1
             self.valid_action_mask_value[245] = 1
+            if all(self.invalid_dice.values() is True):
+                self.valid_action_mask_value[245] = 0
             # yellow
-            if self.invalid_dice["yellow"] is False:
-
+            if self.invalid_dice["yellow"] is True:
+                self.valid_action_mask_value[122:122 + 16] = 0
             # blue
-            if self.invalid_dice["blue"] is False:
-
+            if self.invalid_dice["blue"] is True:
+                self.valid_action_mask_value[138:138 + 12] = 0
             # green
-            if self.invalid_dice["green"] is False:
-
+            if self.invalid_dice["green"] is True:
+                self.valid_action_mask_value[149:149 + 11] = 0
             # orange
-            if self.invalid_dice["orange"] is False:
-
+            if self.invalid_dice["orange"] is True:
+                self.valid_action_mask_value[160:160 + 11] = 0
             # purple
-            if self.invalid_dice["purple"] is False:
-
+            if self.invalid_dice["purple"] is True:
+                self.valid_action_mask_value[171:171 + 11] = 0
             # white
-            if self.invalid_dice["white"] is False:
-
+            if self.invalid_dice["white"] is True:
+                self.valid_action_mask_value[182:182 + 61] = 0
         # mask for re_roll action
         if self.re_roll <= 0 or self.can_pick_extra_self or self.can_pick_extra_other:
             self.valid_action_mask_value[244] = 0
