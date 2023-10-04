@@ -76,10 +76,12 @@ class GanzSchonCleverEnv(gym.Env):
         self.picked_purple = 0
         # model values
         self.number_of_actions = 246
-        low_bound = np.array([0]*16 + [0]*12 + [0] * 11 + [0] * 11 + [0] * 11 + [1]*6 + [0] + [1] + [0] * 3 + [0] * 7)
-        high_bound = np.array([6]*16 + [6]*12 + [1] * 11 + [6] * 11 + [6] * 11 + [6]*6 + [6] + [3] + [6] * 3 + [1] * 7)
+        low_bound = np.array([0]*16 + [0]*12 + [0] * 11 + [0] * 11 + [0] * 11 + [1]*6 + [0]*6 + [0] + [1] + [0] * 3 +
+                             [0] * 7)
+        high_bound = np.array([6]*16 + [6]*12 + [1] * 11 + [6] * 11 + [6] * 11 + [6]*6 + [1]*6 + [6] + [3] + [6] * 3 +
+                              [1] * 7)
         self.action_space = spaces.Discrete(self.number_of_actions)
-        self.observation_space = spaces.Box(low_bound, high_bound, shape=(79,), dtype=np.int8)
+        self.observation_space = spaces.Box(low_bound, high_bound, shape=(85,), dtype=np.int8)
         self.valid_action_mask_value = np.ones(self.number_of_actions)
         self.valid_action_mask_value = self.valid_action_mask()
 
@@ -465,9 +467,10 @@ class GanzSchonCleverEnv(gym.Env):
         orange_field_array = np.array(self.orange_field, dtype=np.int8).flatten()
         purple_field_array = np.array(self.purple_field, dtype=np.int8).flatten()
         dice_array = np.array(list(self.dice.values()), dtype=np.int8)
+        invalid_dice_array = np.array(list(self.invalid_dice.values()), dtype=np.int8)
         # concatenating all values to an observation space
         obs = np.concatenate((yellow_field_array, blue_field_array, green_field_array, orange_field_array,
-                              purple_field_array, dice_array, [self.rounds], [self.roll_in_round],
+                              purple_field_array, dice_array, invalid_dice_array, [self.rounds], [self.roll_in_round],
                               [self.extra_pick, self.re_roll, self.fox],
                               [self.orange_four, self.orange_five, self.orange_six, self.purple_six, self.yellow_cross,
                                self.blue_cross, self.green_cross]), axis=None)
@@ -483,6 +486,8 @@ class GanzSchonCleverEnv(gym.Env):
             if self.yellow_field[col][row] == 0:
                 self.valid_action_mask_value[i] = 0
                 self.valid_action_mask_value[i + 61] = 0
+                self.valid_action_mask_value[122 + i] = 0
+                self.valid_action_mask_value[122 + i + 61] = 0
         # yellow dice
         if self.dice["yellow"] != 1:
             self.valid_action_mask_value[5] = 0
@@ -614,6 +619,7 @@ class GanzSchonCleverEnv(gym.Env):
         m = 0
         self.valid_action_mask_value[28:28 + 11] = 0
         self.valid_action_mask_value[89:89 + 11] = 0
+        self.valid_action_mask_value[150:150 + 11] = 0
         self.valid_action_mask_value[211:211 + 11] = 0
         for i in range(len(self.green_field)):
             if self.green_field[i] == 0:
@@ -622,6 +628,7 @@ class GanzSchonCleverEnv(gym.Env):
         if m < 11:
             self.valid_action_mask_value[28 + m] = 1
             self.valid_action_mask_value[28 + 61 + m] = 1
+            self.valid_action_mask_value[122 + 28 + m] = 1
             self.valid_action_mask_value[122 + 28 + 61 + m] = 1
         # green dice
         if self.dice["green"] == 5:
@@ -675,6 +682,7 @@ class GanzSchonCleverEnv(gym.Env):
         m = 0
         self.valid_action_mask_value[39:39 + 11] = 0
         self.valid_action_mask_value[100:100 + 11] = 0
+        self.valid_action_mask_value[161:161 + 11] = 0
         self.valid_action_mask_value[222:222 + 11] = 0
         for i in range(len(self.orange_field)):
             if self.orange_field[i] == 0:
@@ -689,6 +697,7 @@ class GanzSchonCleverEnv(gym.Env):
         m = 0
         self.valid_action_mask_value[50:50 + 11] = 0
         self.valid_action_mask_value[111:111 + 11] = 0
+        self.valid_action_mask_value[172:172 + 11] = 0
         self.valid_action_mask_value[233:233 + 11] = 0
         for i in range(len(self.purple_field)):
             if self.purple_field[i] == 0:
@@ -699,6 +708,7 @@ class GanzSchonCleverEnv(gym.Env):
                 m < 11 and self.purple_field[m - 1] < self.dice["white"] or m == 0:
             self.valid_action_mask_value[50 + m] = 1
             self.valid_action_mask_value[50 + 61 + m] = 1
+            self.valid_action_mask_value[122 + 50 + m] = 1
             self.valid_action_mask_value[122 + 50 + 61 + m] = 1
         # mask for rewards
         if self.yellow_cross > 0 or self.blue_cross > 0 or self.green_cross > 0 or self.orange_four > 0 or \
