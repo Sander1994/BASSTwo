@@ -487,40 +487,64 @@ class GanzSchonCleverEnv(gym.Env):
         if self.dice["yellow"] != 1:
             self.valid_action_mask_value[5] = 0
             self.valid_action_mask_value[8] = 0
+            self.valid_action_mask_value[122 + 5] = 0
+            self.valid_action_mask_value[122 + 8] = 0
         if self.dice["yellow"] != 2:
             self.valid_action_mask_value[4] = 0
             self.valid_action_mask_value[10] = 0
+            self.valid_action_mask_value[122 + 4] = 0
+            self.valid_action_mask_value[122 + 10] = 0
         if self.dice["yellow"] != 3:
             self.valid_action_mask_value[0] = 0
             self.valid_action_mask_value[13] = 0
+            self.valid_action_mask_value[122 + 0] = 0
+            self.valid_action_mask_value[122 + 13] = 0
         if self.dice["yellow"] != 4:
             self.valid_action_mask_value[11] = 0
             self.valid_action_mask_value[14] = 0
+            self.valid_action_mask_value[122 + 11] = 0
+            self.valid_action_mask_value[122 + 14] = 0
         if self.dice["yellow"] != 5:
             self.valid_action_mask_value[2] = 0
             self.valid_action_mask_value[7] = 0
+            self.valid_action_mask_value[122 + 2] = 0
+            self.valid_action_mask_value[122 + 7] = 0
         if self.dice["yellow"] != 6:
             self.valid_action_mask_value[1] = 0
             self.valid_action_mask_value[15] = 0
+            self.valid_action_mask_value[122 + 1] = 0
+            self.valid_action_mask_value[122 + 15] = 0
         # white dice
         if self.dice["white"] != 1:
-            self.valid_action_mask_value[5+61] = 0
-            self.valid_action_mask_value[8+61] = 0
+            self.valid_action_mask_value[5 + 61] = 0
+            self.valid_action_mask_value[8 + 61] = 0
+            self.valid_action_mask_value[122 + 5 + 61] = 0
+            self.valid_action_mask_value[122 + 8 + 61] = 0
         if self.dice["white"] != 2:
-            self.valid_action_mask_value[4+61] = 0
-            self.valid_action_mask_value[10+61] = 0
+            self.valid_action_mask_value[4 + 61] = 0
+            self.valid_action_mask_value[10 + 61] = 0
+            self.valid_action_mask_value[122 + 4 + 61] = 0
+            self.valid_action_mask_value[122 + 10 + 61] = 0
         if self.dice["white"] != 3:
-            self.valid_action_mask_value[0+61] = 0
-            self.valid_action_mask_value[13+61] = 0
+            self.valid_action_mask_value[0 + 61] = 0
+            self.valid_action_mask_value[13 + 61] = 0
+            self.valid_action_mask_value[122 + 0 + 61] = 0
+            self.valid_action_mask_value[122 + 13 + 61] = 0
         if self.dice["white"] != 4:
-            self.valid_action_mask_value[11+61] = 0
-            self.valid_action_mask_value[14+61] = 0
+            self.valid_action_mask_value[11 + 61] = 0
+            self.valid_action_mask_value[14 + 61] = 0
+            self.valid_action_mask_value[122 + 11 + 61] = 0
+            self.valid_action_mask_value[122 + 14 + 61] = 0
         if self.dice["white"] != 5:
-            self.valid_action_mask_value[2+61] = 0
-            self.valid_action_mask_value[7+61] = 0
+            self.valid_action_mask_value[2 + 61] = 0
+            self.valid_action_mask_value[7 + 61] = 0
+            self.valid_action_mask_value[122 + 2 + 61] = 0
+            self.valid_action_mask_value[122 + 7 + 61] = 0
         if self.dice["white"] != 6:
-            self.valid_action_mask_value[1+61] = 0
-            self.valid_action_mask_value[15+61] = 0
+            self.valid_action_mask_value[1 + 61] = 0
+            self.valid_action_mask_value[15 + 61] = 0
+            self.valid_action_mask_value[122 + 1 + 61] = 0
+            self.valid_action_mask_value[122 + 15 + 61] = 0
         # mask for blue field actions
         m = 16
         for row in self.blue_field:
@@ -528,44 +552,69 @@ class GanzSchonCleverEnv(gym.Env):
                 if element == 0:
                     self.valid_action_mask_value[m] = 0
                     self.valid_action_mask_value[m + 61] = 0
+                    self.valid_action_mask_value[122 + m] = 0
+                    self.valid_action_mask_value[122 + m + 61] = 0
                 m += 1
         if self.dice["blue"] + self.dice["white"] != 2:
             self.valid_action_mask_value[17] = 0
             self.valid_action_mask_value[17 + 61] = 0
+            self.valid_action_mask_value[122 + 17] = 0
+            self.valid_action_mask_value[122 + 17 + 61] = 0
         if self.dice["blue"] + self.dice["white"] != 3:
             self.valid_action_mask_value[18] = 0
             self.valid_action_mask_value[18 + 61] = 0
+            self.valid_action_mask_value[122 + 17] = 0
+            self.valid_action_mask_value[122 + 17 + 61] = 0
         if self.dice["blue"] + self.dice["white"] != 4:
             self.valid_action_mask_value[19] = 0
             self.valid_action_mask_value[19 + 61] = 0
+            self.valid_action_mask_value[122 + 19] = 0
+            self.valid_action_mask_value[122 + 19 + 61] = 0
         if self.dice["blue"] + self.dice["white"] != 5:
             self.valid_action_mask_value[20] = 0
             self.valid_action_mask_value[20 + 61] = 0
+            self.valid_action_mask_value[122 + 20] = 0
+            self.valid_action_mask_value[122 + 20 + 61] = 0
         if self.dice["blue"] + self.dice["white"] != 6:
             self.valid_action_mask_value[21] = 0
             self.valid_action_mask_value[21 + 61] = 0
+            self.valid_action_mask_value[122 + 21] = 0
+            self.valid_action_mask_value[122 + 21 + 61] = 0
         if self.dice["blue"] + self.dice["white"] != 7:
             self.valid_action_mask_value[22] = 0
             self.valid_action_mask_value[22 + 61] = 0
+            self.valid_action_mask_value[122 + 22] = 0
+            self.valid_action_mask_value[122 + 22 + 61] = 0
         if self.dice["blue"] + self.dice["white"] != 8:
             self.valid_action_mask_value[23] = 0
             self.valid_action_mask_value[23 + 61] = 0
+            self.valid_action_mask_value[122 + 23] = 0
+            self.valid_action_mask_value[122 + 23 + 61] = 0
         if self.dice["blue"] + self.dice["white"] != 9:
             self.valid_action_mask_value[24] = 0
             self.valid_action_mask_value[24 + 61] = 0
+            self.valid_action_mask_value[122 + 24] = 0
+            self.valid_action_mask_value[122 + 24 + 61] = 0
         if self.dice["blue"] + self.dice["white"] != 10:
             self.valid_action_mask_value[25] = 0
             self.valid_action_mask_value[25 + 61] = 0
+            self.valid_action_mask_value[122 + 25] = 0
+            self.valid_action_mask_value[122 + 25 + 61] = 0
         if self.dice["blue"] + self.dice["white"] != 11:
             self.valid_action_mask_value[26] = 0
             self.valid_action_mask_value[26 + 61] = 0
+            self.valid_action_mask_value[122 + 26] = 0
+            self.valid_action_mask_value[122 + 26 + 61] = 0
         if self.dice["blue"] + self.dice["white"] != 12:
             self.valid_action_mask_value[27] = 0
             self.valid_action_mask_value[27 + 61] = 0
+            self.valid_action_mask_value[122 + 27] = 0
+            self.valid_action_mask_value[122 + 27 + 61] = 0
         # mask for green field actions
         m = 0
         self.valid_action_mask_value[28:28 + 11] = 0
         self.valid_action_mask_value[89:89 + 11] = 0
+        self.valid_action_mask_value[211:211 + 11] = 0
         for i in range(len(self.green_field)):
             if self.green_field[i] == 0:
                 break
@@ -573,40 +622,60 @@ class GanzSchonCleverEnv(gym.Env):
         if m < 11:
             self.valid_action_mask_value[28 + m] = 1
             self.valid_action_mask_value[28 + 61 + m] = 1
+            self.valid_action_mask_value[122 + 28 + 61 + m] = 1
         # green dice
         if self.dice["green"] == 5:
             self.valid_action_mask_value[28 + 10] = 0
+            self.valid_action_mask_value[122 + 28 + 10] = 0
         if self.dice["green"] == 4:
             self.valid_action_mask_value[28 + 9] = 0
             self.valid_action_mask_value[28 + 4] = 0
+            self.valid_action_mask_value[122 + 28 + 9] = 0
+            self.valid_action_mask_value[122 + 28 + 4] = 0
         if self.dice["green"] == 3:
             self.valid_action_mask_value[28 + 8] = 0
             self.valid_action_mask_value[28 + 3] = 0
+            self.valid_action_mask_value[122 + 28 + 8] = 0
+            self.valid_action_mask_value[122 + 28 + 3] = 0
         if self.dice["green"] == 2:
             self.valid_action_mask_value[28 + 7] = 0
             self.valid_action_mask_value[28 + 2] = 0
+            self.valid_action_mask_value[122 + 28 + 7] = 0
+            self.valid_action_mask_value[122 + 28 + 2] = 0
         if self.dice["green"] == 2:
             self.valid_action_mask_value[28 + 6] = 0
             self.valid_action_mask_value[28 + 1] = 0
+            self.valid_action_mask_value[122 + 28 + 6] = 0
+            self.valid_action_mask_value[122 + 28 + 1] = 0
         # white dice
         if self.dice["white"] == 5:
             self.valid_action_mask_value[28 + 10 + 61] = 0
+            self.valid_action_mask_value[122 + 28 + 10 + 61] = 0
         if self.dice["white"] == 4:
             self.valid_action_mask_value[28 + 9 + 61] = 0
             self.valid_action_mask_value[28 + 4 + 61] = 0
+            self.valid_action_mask_value[122 + 28 + 9 + 61] = 0
+            self.valid_action_mask_value[122 + 28 + 4 + 61] = 0
         if self.dice["white"] == 3:
             self.valid_action_mask_value[28 + 8 + 61] = 0
             self.valid_action_mask_value[28 + 3 + 61] = 0
+            self.valid_action_mask_value[122 + 28 + 8 + 61] = 0
+            self.valid_action_mask_value[122 + 28 + 3 + 61] = 0
         if self.dice["white"] == 2:
             self.valid_action_mask_value[28 + 7 + 61] = 0
             self.valid_action_mask_value[28 + 2 + 61] = 0
+            self.valid_action_mask_value[122 + 28 + 7 + 61] = 0
+            self.valid_action_mask_value[122 + 28 + 2 + 61] = 0
         if self.dice["white"] == 2:
             self.valid_action_mask_value[28 + 6 + 61] = 0
             self.valid_action_mask_value[28 + 1 + 61] = 0
+            self.valid_action_mask_value[122 + 28 + 6 + 61] = 0
+            self.valid_action_mask_value[122 + 28 + 1 + 61] = 0
         # mask for orange field actions
         m = 0
         self.valid_action_mask_value[39:39 + 11] = 0
         self.valid_action_mask_value[100:100 + 11] = 0
+        self.valid_action_mask_value[222:222 + 11] = 0
         for i in range(len(self.orange_field)):
             if self.orange_field[i] == 0:
                 break
@@ -614,10 +683,13 @@ class GanzSchonCleverEnv(gym.Env):
         if m < 11:
             self.valid_action_mask_value[39 + m] = 1
             self.valid_action_mask_value[39 + 61 + m] = 1
+            self.valid_action_mask_value[122 + 39 + m] = 1
+            self.valid_action_mask_value[122 + 39 + 61 + m] = 1
         # mask for purple field actions
         m = 0
         self.valid_action_mask_value[50:50 + 11] = 0
         self.valid_action_mask_value[111:111 + 11] = 0
+        self.valid_action_mask_value[233:233 + 11] = 0
         for i in range(len(self.purple_field)):
             if self.purple_field[i] == 0:
                 break
@@ -627,6 +699,7 @@ class GanzSchonCleverEnv(gym.Env):
                 m < 11 and self.purple_field[m - 1] < self.dice["white"] or m == 0:
             self.valid_action_mask_value[50 + m] = 1
             self.valid_action_mask_value[50 + 61 + m] = 1
+            self.valid_action_mask_value[122 + 50 + 61 + m] = 1
         # mask for rewards
         if self.yellow_cross > 0 or self.blue_cross > 0 or self.green_cross > 0 or self.orange_four > 0 or \
                 self.orange_five > 0 or self.orange_six > 0 or self.purple_six > 0:
@@ -675,44 +748,31 @@ class GanzSchonCleverEnv(gym.Env):
         # mask for invalid dice
         if self.invalid_dice["yellow"] is True:
             self.valid_action_mask_value[0:0 + 16] = 0
+            self.valid_action_mask_value[122:122 + 16] = 0
         if self.invalid_dice["blue"] is True:
             self.valid_action_mask_value[16:16 + 12] = 0
+            self.valid_action_mask_value[138:138 + 12] = 0
         if self.invalid_dice["green"] is True:
             self.valid_action_mask_value[28:28 + 11] = 0
+            self.valid_action_mask_value[150:150 + 11] = 0
         if self.invalid_dice["orange"] is True:
             self.valid_action_mask_value[39:39 + 11] = 0
+            self.valid_action_mask_value[161:161 + 11] = 0
         if self.invalid_dice["purple"] is True:
             self.valid_action_mask_value[50:50 + 11] = 0
+            self.valid_action_mask_value[172:172 + 11] = 0
         if self.invalid_dice["white"] is True:
             self.valid_action_mask_value[61:61 + 61] = 0
+            self.valid_action_mask_value[183:183 + 61] = 0
         # mask for extra_pick action
         if self.extra_pick <= 0 or not self.can_pick_extra_self or not self.can_pick_extra_other:
             self.valid_action_mask_value[122:122 + 122] = 0
             self.valid_action_mask_value[245] = 0
         if self.extra_pick >= 1 and self.can_pick_extra_self or self.extra_pick >= 1 and self.can_pick_extra_other:
-            self.valid_action_mask_value[:] = 0
-            self.valid_action_mask_value[122:122 + 122] = 1
+            self.valid_action_mask_value[0:0 + 122] = 0
             self.valid_action_mask_value[245] = 1
             if all(color is True for color in self.invalid_dice.values()):
                 self.valid_action_mask_value[245] = 0
-            # yellow
-            if self.invalid_dice["yellow"] is True:
-                self.valid_action_mask_value[122:122 + 16] = 0
-            # blue
-            if self.invalid_dice["blue"] is True:
-                self.valid_action_mask_value[138:138 + 12] = 0
-            # green
-            if self.invalid_dice["green"] is True:
-                self.valid_action_mask_value[149:149 + 11] = 0
-            # orange
-            if self.invalid_dice["orange"] is True:
-                self.valid_action_mask_value[160:160 + 11] = 0
-            # purple
-            if self.invalid_dice["purple"] is True:
-                self.valid_action_mask_value[171:171 + 11] = 0
-            # white
-            if self.invalid_dice["white"] is True:
-                self.valid_action_mask_value[182:182 + 61] = 0
         # mask for re_roll action
         if self.re_roll <= 0 or self.can_pick_extra_self or self.can_pick_extra_other:
             self.valid_action_mask_value[244] = 0
