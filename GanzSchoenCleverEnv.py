@@ -818,7 +818,7 @@ class GanzSchonCleverEnv(gym.Env):
         if self.roll_in_round < 3:
             self.roll_in_round += 1
         elif self.roll_in_round >= 3 or all(invalid_dice is True for invalid_dice in self.invalid_dice.values()) or \
-                np.all(self.valid_action_mask_value[0:0 + 246] == 0):
+                self.valid_action_mask_value[246] == 0:
             self.rounds -= 1
             self.roll_in_round = 1
             self.extra_pick_dice = self.dice
