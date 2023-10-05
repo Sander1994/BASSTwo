@@ -106,6 +106,7 @@ class GanzSchonCleverEnv(gym.Env):
                 for dice_color in self.dice:
                     if self.dice[dice_color] < self.dice["yellow"]:
                         self.invalid_dice[dice_color] = True
+                self.invalid_dice["yellow"] = True
         # blue field actions
         elif action < 28:
             self.picked_blue += 1
@@ -121,6 +122,7 @@ class GanzSchonCleverEnv(gym.Env):
                 for dice_color in self.dice:
                     if self.dice[dice_color] < self.dice["blue"]:
                         self.invalid_dice[dice_color] = True
+                self.invalid_dice["blue"] = True
         # green field actions
         elif action < 39:
             self.picked_green += 1
@@ -133,6 +135,7 @@ class GanzSchonCleverEnv(gym.Env):
                 for dice_color in self.dice:
                     if self.dice[dice_color] < self.dice["green"]:
                         self.invalid_dice[dice_color] = True
+                self.invalid_dice["green"] = True
         # orange field actions
         elif action < 50:
             self.picked_orange += 1
@@ -155,6 +158,7 @@ class GanzSchonCleverEnv(gym.Env):
                 for dice_color in self.dice:
                     if self.dice[dice_color] < self.dice["orange"]:
                         self.invalid_dice[dice_color] = True
+                self.invalid_dice["orange"] = True
         # purple field actions
         elif action < 61:
             self.picked_purple += 1
@@ -169,6 +173,7 @@ class GanzSchonCleverEnv(gym.Env):
                 for dice_color in self.dice:
                     if self.dice[dice_color] < self.dice["purple"]:
                         self.invalid_dice[dice_color] = True
+                self.invalid_dice["purple"] = True
         # white dice actions
         elif action < 122:
             # yellow
@@ -205,6 +210,7 @@ class GanzSchonCleverEnv(gym.Env):
             for dice_color in self.dice:
                 if self.dice[dice_color] < self.dice["white"]:
                     self.invalid_dice[dice_color] = True
+            self.invalid_dice["white"] = True
         # extra_pick action
         elif action < 244:
             self.extra_pick -= 1
