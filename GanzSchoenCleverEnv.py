@@ -816,7 +816,7 @@ class GanzSchonCleverEnv(gym.Env):
 
     def increment_rounds(self):
         if self.roll_in_round >= 3 or all(invalid_dice is True for invalid_dice in self.invalid_dice.values()) or \
-                self.valid_action_mask_value[246] == 0:
+                self.valid_action_mask_value[246] == 1:
             self.rounds -= 1
             self.roll_in_round = 1
             self.extra_pick_dice = self.dice
