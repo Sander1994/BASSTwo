@@ -815,9 +815,7 @@ class GanzSchonCleverEnv(gym.Env):
             reward_map[reward_type]()
 
     def increment_rounds(self):
-        if self.roll_in_round < 3:
-            self.roll_in_round += 1
-        elif self.roll_in_round >= 3 or all(invalid_dice is True for invalid_dice in self.invalid_dice.values()) or \
+        if self.roll_in_round >= 3 or all(invalid_dice is True for invalid_dice in self.invalid_dice.values()) or \
                 self.valid_action_mask_value[246] == 0:
             self.rounds -= 1
             self.roll_in_round = 1
@@ -825,3 +823,5 @@ class GanzSchonCleverEnv(gym.Env):
             self.invalid_dice = {color: False for color in self.invalid_dice}
             self.can_pick_extra_self = True
             self.roll_dice()
+        elif self.roll_in_round < 3:
+            self.roll_in_round += 1
