@@ -75,7 +75,7 @@ class GanzSchonCleverEnv(gym.Env):
         self.picked_orange = 0
         self.picked_purple = 0
         # model values
-        self.number_of_actions = 246
+        self.number_of_actions = 247
         low_bound = np.array([0]*16 + [0]*12 + [0] * 11 + [0] * 11 + [0] * 11 + [1]*6 + [0]*6 + [0] + [1] + [0] * 3 +
                              [0] * 7)
         high_bound = np.array([6]*16 + [6]*12 + [1] * 11 + [6] * 11 + [6] * 11 + [6]*6 + [1]*6 + [6] + [3] + [6] * 3 +
@@ -294,6 +294,9 @@ class GanzSchonCleverEnv(gym.Env):
                 self.can_pick_extra_other = False
                 self.invalid_dice = {color: False for color in self.invalid_dice}
             return self._get_obs(), reward, terminated, truncated, info
+        # increment rounds if no action is possible
+        elif action < 247:
+            pass
         # wrong actions
         else:
             reward -= 1000
@@ -786,6 +789,11 @@ class GanzSchonCleverEnv(gym.Env):
         # mask for re_roll action
         if self.re_roll <= 0 or self.can_pick_extra_self or self.can_pick_extra_other:
             self.valid_action_mask_value[244] = 0
+        # mask for passing
+        if np.all(self.valid_action_mask_value[0:0 + 246] == 0):
+            self.valid_action_mask_value[246] = 1
+        else:
+            self.valid_action_mask_value[246] = 0
 
         return self.valid_action_mask_value
 
@@ -809,7 +817,8 @@ class GanzSchonCleverEnv(gym.Env):
     def increment_rounds(self):
         if self.roll_in_round < 3:
             self.roll_in_round += 1
-        elif self.roll_in_round >= 3 or all(invalid_dice is True for invalid_dice in self.invalid_dice.values()):
+        elif self.roll_in_round >= 3 or all(invalid_dice is True for invalid_dice in self.invalid_dice.values()) or \
+                np.all(self.valid_action_mask_value[0:0 + 246] == 0):
             self.rounds -= 1
             self.roll_in_round = 1
             self.extra_pick_dice = self.dice
