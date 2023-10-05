@@ -11,7 +11,7 @@ from typing import cast
 import torch.nn as nn
 
 
-# learning_process for the model
+# learning process for the model
 def model_learn(n_envs=32, name="maskableppo_ganzschoenclever", net_arch=None, activation_fn=nn.ReLU, gamma=1,
                 learning_rate=0.0003*2, ent_coef=0.05, clip_range=0.2, verbose=1, n_steps=int(2048 / 32), n_epochs=5,
                 batch_size=int(2048 / 16), total_timesteps=1000000, prediction_ent_coef=0, prediction_gamma=1):

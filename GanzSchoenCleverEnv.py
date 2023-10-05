@@ -789,7 +789,7 @@ class GanzSchonCleverEnv(gym.Env):
 
         return self.valid_action_mask_value
 
-    # adds non-numeric rewards
+    # adds the non-numeric rewards
     def add_reward(self, reward_type):
         reward_map = {
             "extra_pick": lambda: setattr(self, "extra_pick", self.extra_pick + 1),
