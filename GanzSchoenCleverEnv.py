@@ -22,7 +22,6 @@ class GanzSchonCleverEnv(gym.Env):
         self.dice = {"white": 0, "yellow": 0, "blue": 0, "green": 0, "orange": 0, "purple": 0}
         self.picked_dice = []
         self.roll_dice()
-        self.extra_pick_dice = None
         self.can_pick_extra_self = False
         self.can_pick_other = False
         self.can_pick_extra_other = False
@@ -221,7 +220,8 @@ class GanzSchonCleverEnv(gym.Env):
             self.picked_dice.append("white")
         # extra_pick action
         elif action < 244:
-            self.extra_pick -= 1
+            if self.can_pick_extra_self or self.can_pick_extra_other:
+                self.extra_pick -= 1
             self.turn_is_extra_turn = True
             # yellow field actions
             if action < 138:
@@ -311,7 +311,8 @@ class GanzSchonCleverEnv(gym.Env):
             return self._get_obs(), reward, terminated, truncated, info
         # attribute updates
         if not self.turn_is_extra_turn:
-            self.roll_dice()
+            if not self.can_pick_other:
+                self.roll_dice()
             self.increment_rounds()
             # attribute updates for a finished game
             if self.rounds == 0:
@@ -351,7 +352,6 @@ class GanzSchonCleverEnv(gym.Env):
         self.purple_field_score = 0
         self.turn_is_extra_turn = False
         self.roll_in_round = 1
-        self.extra_pick_dice = None
         self.can_pick_extra_self = False
         self.can_pick_extra_other = False
         self.extra_pick = 0
@@ -367,7 +367,6 @@ class GanzSchonCleverEnv(gym.Env):
         self.score = 0
         self.rounds = self.initial_rounds
         self.roll_in_round = 1
-        self.roll_dice()
         self.valid_action_mask_value = self.valid_action_mask()
         info = {}
         if self.initialized is False:
@@ -825,29 +824,41 @@ class GanzSchonCleverEnv(gym.Env):
             reward_map[reward_type]()
 
     def increment_rounds(self):
-        if self.roll_in_round >= 3 or all(invalid_dice is True for invalid_dice in self.invalid_dice.values()) or \
-                self.valid_action_mask_value[246] == 1:
-            self.rounds -= 1
-            self.roll_in_round = 1
-            self.extra_pick_dice = self.dice
-            self.invalid_dice = {color: False for color in self.invalid_dice}
-            self.can_pick_extra_self = True
-            self.roll_dice()
-        elif self.can_pick_extra_self:
+        if self.can_pick_extra_self:
             self.can_pick_other = True
             self.can_pick_extra_self = False
-            self.extra_pick_dice = self.dice
             self.invalid_dice = {color: False for color in self.invalid_dice}
             colors_to_change = random.sample(self.invalid_dice.keys(), 3)
             for color in colors_to_change:
                 self.invalid_dice[color] = True
+            self.roll_dice()
         elif self.can_pick_other:
-            self.can_pick_extra_other = True
+            if self.extra_pick >= 1:
+                self.can_pick_extra_other = True
+            else:
+                if self.rounds == 5:
+                    self.extra_pick += 1
+                if self.rounds == 4:
+                    self.re_roll += 1
+                if self.rounds == 3:
+                    random_reward = random.randint(1, 5)
+                    if random_reward == 1:
+                        self.yellow_cross += 1
+                    if random_reward == 2:
+                        self.blue_cross += 1
+                    if random_reward == 3:
+                        self.green_cross += 1
+                    if random_reward == 4:
+                        self.orange_six += 1
+                    if random_reward == 5:
+                        self.purple_six += 1
+                self.roll_dice()
             self.can_pick_other = False
             self.invalid_dice = {color: False for color in self.invalid_dice}
         elif self.can_pick_extra_other:
             self.can_pick_extra_other = False
             self.roll_dice()
+            self.invalid_dice = {color: False for color in self.invalid_dice}
             if self.rounds == 5:
                 self.extra_pick += 1
             if self.rounds == 4:
@@ -864,5 +875,18 @@ class GanzSchonCleverEnv(gym.Env):
                     self.orange_six += 1
                 if random_reward == 5:
                     self.purple_six += 1
+        elif self.roll_in_round >= 3 or all(invalid_dice is True for invalid_dice in self.invalid_dice.values()) or \
+                self.valid_action_mask_value[246] == 1:
+            self.rounds -= 1
+            self.roll_in_round = 1
+            self.invalid_dice = {color: False for color in self.invalid_dice}
+            if self.extra_pick >= 1:
+                self.can_pick_extra_self = True
+            else:
+                self.can_pick_other = True
+                colors_to_change = random.sample(self.invalid_dice.keys(), 3)
+                for color in colors_to_change:
+                    self.invalid_dice[color] = True
+                self.roll_dice()
         elif self.roll_in_round < 3:
             self.roll_in_round += 1
