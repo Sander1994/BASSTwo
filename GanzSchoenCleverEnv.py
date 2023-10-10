@@ -304,6 +304,7 @@ class GanzSchonCleverEnv(gym.Env):
         # increment rounds if no action is possible
         elif action < 247:
             pass
+            reward -= 1
         # wrong actions
         else:
             reward -= 1000
@@ -321,7 +322,8 @@ class GanzSchonCleverEnv(gym.Env):
                 reward += self.fox * min(self.yellow_field_score, self.blue_field_score, self.green_field_score,
                                          self.orange_field_score, self.purple_field_score)
         reward += self.check_rewards()
-        self.score += reward
+        if reward >= 0:
+            self.score += reward
         self.valid_action_mask_value = self.valid_action_mask()
         info = {}
 
