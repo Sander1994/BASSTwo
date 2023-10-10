@@ -786,8 +786,9 @@ class GanzSchonCleverEnv(gym.Env):
             self.valid_action_mask_value[61:61 + 61] = 0
             self.valid_action_mask_value[183:183 + 61] = 0
         # mask for extra_pick action
-        if self.extra_pick <= 0 or (not self.can_pick_extra_self and not self.can_pick_extra_other
-                                    and not self.can_pick_other):
+        if not self.can_pick_other and not self.can_pick_extra_self and not self.can_pick_extra_other or \
+                (self.can_pick_extra_self and self.extra_pick <= 0) or \
+                (self.extra_pick >= 0 and self.can_pick_extra_other):
             self.valid_action_mask_value[122:122 + 122] = 0
             self.valid_action_mask_value[245] = 0
         if (self.extra_pick >= 1 and self.can_pick_extra_self) or (self.extra_pick >= 1 and self.can_pick_extra_other) \
@@ -795,8 +796,6 @@ class GanzSchonCleverEnv(gym.Env):
             self.valid_action_mask_value[0:0 + 122] = 0
             if not self.can_pick_other:
                 self.valid_action_mask_value[245] = 1
-            # if all(color is True for color in self.invalid_dice.values()):
-            #     self.valid_action_mask_value[245] = 0
         # mask for re_roll action
         if self.re_roll <= 0 or self.can_pick_extra_self or self.can_pick_extra_other or self.can_pick_other:
             self.valid_action_mask_value[244] = 0
