@@ -304,7 +304,7 @@ class GanzSchonCleverEnv(gym.Env):
         # increment rounds if no action is possible
         elif action < 247:
             pass
-            reward -= 1
+            reward -= 1000
         # wrong actions
         else:
             reward -= 1000
