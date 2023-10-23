@@ -713,6 +713,41 @@ class GanzSchonCleverEnv(gym.Env):
             self.valid_action_mask_value[50 + 61 + m] = 1
             self.valid_action_mask_value[122 + 50 + m] = 1
             self.valid_action_mask_value[122 + 50 + 61 + m] = 1
+        # mask for invalid dice
+        if self.invalid_dice["yellow"] is True:
+            self.valid_action_mask_value[0:0 + 16] = 0
+            self.valid_action_mask_value[122:122 + 16] = 0
+        if self.invalid_dice["blue"] is True:
+            self.valid_action_mask_value[16:16 + 12] = 0
+            self.valid_action_mask_value[138:138 + 12] = 0
+        if self.invalid_dice["green"] is True:
+            self.valid_action_mask_value[28:28 + 11] = 0
+            self.valid_action_mask_value[150:150 + 11] = 0
+        if self.invalid_dice["orange"] is True:
+            self.valid_action_mask_value[39:39 + 11] = 0
+            self.valid_action_mask_value[161:161 + 11] = 0
+        if self.invalid_dice["purple"] is True:
+            self.valid_action_mask_value[50:50 + 11] = 0
+            self.valid_action_mask_value[172:172 + 11] = 0
+        if self.invalid_dice["white"] is True:
+            self.valid_action_mask_value[61:61 + 61] = 0
+            self.valid_action_mask_value[183:183 + 61] = 0
+
+        # mask for extra_pick action
+        if not self.can_pick_other and not self.can_pick_extra_self and not self.can_pick_extra_other or \
+                (self.can_pick_extra_self and self.extra_pick <= 0) or \
+                (self.extra_pick <= 0 and self.can_pick_extra_other):
+            self.valid_action_mask_value[122:122 + 122] = 0
+            self.valid_action_mask_value[245] = 0
+        if (self.extra_pick >= 1 and self.can_pick_extra_self) or (self.extra_pick >= 1 and self.can_pick_extra_other) \
+                or self.can_pick_other:
+            self.valid_action_mask_value[0:0 + 122] = 0
+            if not self.can_pick_other:
+                self.valid_action_mask_value[245] = 1
+        # mask for re_roll action
+        if self.re_roll <= 0 or self.can_pick_extra_self or self.can_pick_extra_other or self.can_pick_other:
+            self.valid_action_mask_value[244] = 0
+
         # mask for rewards
         if self.yellow_cross > 0 or self.blue_cross > 0 or self.green_cross > 0 or self.orange_four > 0 or \
                 self.orange_five > 0 or self.orange_six > 0 or self.purple_six > 0:
@@ -758,39 +793,7 @@ class GanzSchonCleverEnv(gym.Env):
                 m += 1
             if m < 11:
                 self.valid_action_mask_value[50 + m] = 1
-        # mask for invalid dice
-        if self.invalid_dice["yellow"] is True:
-            self.valid_action_mask_value[0:0 + 16] = 0
-            self.valid_action_mask_value[122:122 + 16] = 0
-        if self.invalid_dice["blue"] is True:
-            self.valid_action_mask_value[16:16 + 12] = 0
-            self.valid_action_mask_value[138:138 + 12] = 0
-        if self.invalid_dice["green"] is True:
-            self.valid_action_mask_value[28:28 + 11] = 0
-            self.valid_action_mask_value[150:150 + 11] = 0
-        if self.invalid_dice["orange"] is True:
-            self.valid_action_mask_value[39:39 + 11] = 0
-            self.valid_action_mask_value[161:161 + 11] = 0
-        if self.invalid_dice["purple"] is True:
-            self.valid_action_mask_value[50:50 + 11] = 0
-            self.valid_action_mask_value[172:172 + 11] = 0
-        if self.invalid_dice["white"] is True:
-            self.valid_action_mask_value[61:61 + 61] = 0
-            self.valid_action_mask_value[183:183 + 61] = 0
-        # mask for extra_pick action
-        if not self.can_pick_other and not self.can_pick_extra_self and not self.can_pick_extra_other or \
-                (self.can_pick_extra_self and self.extra_pick <= 0) or \
-                (self.extra_pick <= 0 and self.can_pick_extra_other):
-            self.valid_action_mask_value[122:122 + 122] = 0
-            self.valid_action_mask_value[245] = 0
-        if (self.extra_pick >= 1 and self.can_pick_extra_self) or (self.extra_pick >= 1 and self.can_pick_extra_other) \
-                or self.can_pick_other:
-            self.valid_action_mask_value[0:0 + 122] = 0
-            if not self.can_pick_other:
-                self.valid_action_mask_value[245] = 1
-        # mask for re_roll action
-        if self.re_roll <= 0 or self.can_pick_extra_self or self.can_pick_extra_other or self.can_pick_other:
-            self.valid_action_mask_value[244] = 0
+
         # mask for passing
         if np.all(self.valid_action_mask_value[0:0 + 246] == 0):
             self.valid_action_mask_value[246] = 1
