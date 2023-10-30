@@ -23,10 +23,13 @@ def model_learn(n_envs=32, name="maskableppo_ganzschoenclever", net_arch=None, a
                         ent_coef=ent_coef, clip_range=clip_range, verbose=verbose, n_steps=n_steps, n_epochs=n_epochs,
                         batch_size=batch_size)
     # learning process
-    model.learn(total_timesteps=total_timesteps)
-    # final settings and saving
+    model.learn(total_timesteps=total_timesteps*2)
+    # final settings
     model.ent_coef = prediction_ent_coef
     model.gamma = prediction_gamma
+    # learn again
+    model.learn(total_timesteps=total_timesteps)
+    # saving
     model.save(name)
 
 
