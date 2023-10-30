@@ -24,7 +24,7 @@ def model_learn(n_envs=32, name="maskableppo_ganzschoenclever", net_arch=None, a
                         batch_size=batch_size)
     # learning process
     model.learn(total_timesteps=total_timesteps*2)
-    # final settings
+    # parameter settings
     model.ent_coef = prediction_ent_coef
     model.gamma = prediction_gamma
     # learn again
