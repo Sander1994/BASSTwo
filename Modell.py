@@ -13,8 +13,9 @@ import torch.nn as nn
 
 # learning process for the model
 def model_learn(n_envs=32, name="maskableppo_ganzschoenclever", net_arch=None, activation_fn=nn.ReLU, gamma=1,
-                learning_rate=0.0003*2, ent_coef=0.05, clip_range=0.2, verbose=1, n_steps=int(2048 / 32), n_epochs=5,
-                batch_size=int(2048 / 16), total_timesteps=1000000, prediction_ent_coef=0, prediction_gamma=1):
+                learning_rate=0.0003*2, ent_coef=0.1, clip_range=0.2, verbose=1, n_steps=int(2048 / 32), n_epochs=5,
+                batch_size=int(2048 / 16), total_timesteps=1000000, prediction_ent_coef=0, prediction_gamma=1,
+                model_name=None):
     # initialize model
     envs = _init_envs(n_envs)
     policy_kwargs = dict(net_arch=net_arch, activation_fn=activation_fn)
@@ -22,6 +23,11 @@ def model_learn(n_envs=32, name="maskableppo_ganzschoenclever", net_arch=None, a
                         policy_kwargs=policy_kwargs,
                         ent_coef=ent_coef, clip_range=clip_range, verbose=verbose, n_steps=n_steps, n_epochs=n_epochs,
                         batch_size=batch_size)
+    # load old model
+    if model_name is not None:
+        model = MaskablePPO.load(model_name)
+        model.env = envs
+        model.ent_coef = ent_coef
     # learning process
     model.learn(total_timesteps=total_timesteps*2)
     # parameter settings

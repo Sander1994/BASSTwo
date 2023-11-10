@@ -298,8 +298,6 @@ class GanzSchonCleverEnv(gym.Env):
             return self._get_obs(), reward, terminated, truncated, info
         # increment rounds if no action is possible
         elif action < 247:
-            if self.can_pick_other:
-                self.increment_rounds()
             reward -= 1
         # wrong actions
         else:
@@ -307,6 +305,7 @@ class GanzSchonCleverEnv(gym.Env):
             terminated = True
             return self._get_obs(), reward, terminated, truncated, info
         # attribute updates
+        reward += self.check_rewards()
         if not self.turn_is_extra_turn:
             self.increment_rounds()
             # attribute updates for a finished game
@@ -314,7 +313,6 @@ class GanzSchonCleverEnv(gym.Env):
                 terminated = True
                 reward += self.fox * min(self.yellow_field_score, self.blue_field_score, self.green_field_score,
                                          self.orange_field_score, self.purple_field_score)
-        reward += self.check_rewards()
         if reward >= 0:
             self.score += reward
         self.valid_action_mask_value = self.valid_action_mask()
