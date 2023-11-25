@@ -382,6 +382,8 @@ class GanzSchonCleverEnv(gym.Env):
             if self.score_history:
                 print(f'Max Score: {max(self.score_history)}')
                 print(f'Average Score: {sum(self.score_history) / len(self.score_history)}')
+                print(f'Standard Deviation: {np.std(self.score_history)}')
+                self.print_median_score()
             print(f'Picked Colors: Yellow: {self.picked_yellow}, Blue: {self.picked_blue}, Green: {self.picked_green}, '
                   f'Orange: {self.picked_orange}, Purple: {self.picked_purple}')
         elif self.render_mode == 'rgb_array':
@@ -884,3 +886,16 @@ class GanzSchonCleverEnv(gym.Env):
         elif self.roll_in_round < 3:
             self.roll_in_round += 1
             self.roll_dice()
+
+    def print_median_score(self):
+        if self.score_history:
+            sorted_scores = sorted(self.score_history)
+            n = len(sorted_scores)
+            mid = n // 2
+
+            if n % 2 == 0:
+                median= (sorted_scores[mid - 1] + sorted_scores[mid]) / 2
+            else:
+                median = sorted_scores[mid]
+
+            print(f'Median: {median}')
