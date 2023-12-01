@@ -856,11 +856,12 @@ class GanzSchonCleverEnv(gym.Env):
             self.can_pick_extra_self = False
             self.invalid_dice = {color: False for color in self.invalid_dice}
             self.roll_dice()
+            self.invalid_dice = {color: True for color in self.invalid_dice}
             dice_list = list(self.dice.items())
             dice_list.sort(key=lambda x: x[1])
             lowest_dice_colors = [color for color, _ in dice_list[:3]]
             for color in lowest_dice_colors:
-                self.invalid_dice[color] = True
+                self.invalid_dice[color] = False
         elif self.can_pick_other:
             if self.extra_pick >= 1:
                 self.can_pick_extra_other = True
@@ -897,11 +898,12 @@ class GanzSchonCleverEnv(gym.Env):
             else:
                 self.can_pick_other = True
                 self.roll_dice()
+                self.invalid_dice = {color: True for color in self.invalid_dice}
                 dice_list = list(self.dice.items())
                 dice_list.sort(key=lambda x: x[1])
                 lowest_dice_colors = [color for color, _ in dice_list[:3]]
                 for color in lowest_dice_colors:
-                    self.invalid_dice[color] = True
+                    self.invalid_dice[color] = False
         elif self.roll_in_round < 3:
             self.roll_in_round += 1
             self.roll_dice()
