@@ -1,0 +1,1 @@
+In diesem Projekt wurde eine Umgebung für das Spiel "Ganz schön clever" implementiert, welche gleichzeitig genutzt wurde um eine KI mithilfe der Stablebaselines Bibliothek zu trainieren. Das Spiel ist vollständig im Singleplayer implementiert worden und hat nach meinem Wissensstand keine Bugs mehr.
